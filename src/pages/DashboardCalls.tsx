@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { CallDetailsModal } from "@/components/CallDetailsModal";
 import { useUser } from "@clerk/clerk-react";
-import { fetchUserByClerkId } from "../lib/dataService";
+import { fetchUserByClerkId, getCampaignsByClerkId } from "../lib/dataService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,6 +89,8 @@ export const DashboardCalls: React.FC = () => {
 
   // User data state
   const [userData, setUserData] = useState<any>(null);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [allAgentIds, setAllAgentIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterTime, setFilterTime] = useState("all-time");
   const [filterNotes, setFilterNotes] = useState("all-notes");
@@ -117,16 +119,51 @@ export const DashboardCalls: React.FC = () => {
     }
   };
 
+  // Fetch campaigns to get all agent IDs
+  const fetchCampaigns = async () => {
+    if (!isLoaded || !isSignedIn || !user) return;
+    try {
+      console.log('Fetching campaigns to get agent IDs...');
+      const campaignsData = await getCampaignsByClerkId(user.id);
+      setCampaigns(campaignsData || []);
+      console.log('Campaigns loaded:', campaignsData);
+    } catch (e: any) {
+      console.error('Error fetching campaigns:', e);
+      setCampaigns([]);
+    }
+  };
+
+  // Combine all agent IDs (initial + campaign agents)
+  useEffect(() => {
+    const agentIds: string[] = [];
+    
+    // Add initial agent ID
+    if (userData?.agent_id) {
+      agentIds.push(userData.agent_id);
+    }
+    
+    // Add campaign agent IDs
+    campaigns.forEach(campaign => {
+      if (campaign.agent_id && !agentIds.includes(campaign.agent_id)) {
+        agentIds.push(campaign.agent_id);
+      }
+    });
+    
+    console.log('Combined agent IDs:', agentIds);
+    setAllAgentIds(agentIds);
+  }, [userData, campaigns]);
+
   useEffect(() => {
     fetchUserData();
+    fetchCampaigns(); // Add campaign fetching
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, isSignedIn, user]);
 
-  // Fetch call history from Vapi API directly when agent_id is available
+  // Fetch call history from Vapi API directly when agent IDs are available
   useEffect(() => {
     const fetchCalls = async () => {
-      if (!userData?.agent_id) {
-        console.log('No agent_id available for fetching calls');
+      if (!allAgentIds || allAgentIds.length === 0) {
+        console.log('No agent IDs available for fetching calls');
         setCalls([]);
         return;
       }
@@ -135,14 +172,14 @@ export const DashboardCalls: React.FC = () => {
       setCallsError(null);
       
       try {
-        console.log('Fetching calls for agent_id:', userData.agent_id);
+        console.log('Fetching calls for all agent IDs:', allAgentIds);
         
         const VAPI_KEY = import.meta.env.VITE_VAPI_KEY;
         if (!VAPI_KEY) {
           throw new Error('VAPI key not configured');
         }
 
-        // Call VAPI API directly to get calls for this agent
+        // Call VAPI API directly to get all calls
         const response = await fetch('https://api.vapi.ai/call', {
           method: 'GET',
           headers: {
@@ -159,13 +196,16 @@ export const DashboardCalls: React.FC = () => {
         const allCalls = await response.json();
         console.log('All calls from VAPI:', allCalls);
 
-        // Filter calls for this specific agent
-        const agentCalls = Array.isArray(allCalls) 
-          ? allCalls.filter(call => call.assistant?.id === userData.agent_id || call.assistantId === userData.agent_id)
+        // Filter calls for all agent IDs
+        const userCalls = Array.isArray(allCalls) 
+          ? allCalls.filter(call => {
+              const callAgentId = call.assistant?.id || call.assistantId;
+              return allAgentIds.includes(callAgentId);
+            })
           : [];
           
-        console.log('Filtered calls for agent:', agentCalls);
-        setCalls(agentCalls);
+        console.log(`Filtered ${userCalls.length} calls for ${allAgentIds.length} agents`);
+        setCalls(userCalls);
       } catch (e: any) {
         console.error('Error fetching calls from VAPI:', e);
         setCallsError(e?.message || "Failed to fetch call history");
@@ -175,7 +215,7 @@ export const DashboardCalls: React.FC = () => {
       }
     };
     fetchCalls();
-  }, [userData?.agent_id]);
+  }, [allAgentIds]); // Changed dependency from userData?.agent_id to allAgentIds
 
   // Filtering and searching logic
   const filteredCalls = useMemo(() => {
@@ -314,20 +354,20 @@ export const DashboardCalls: React.FC = () => {
               size="sm"
               className="gap-1"
               onClick={() => {
-                if (!userData?.agent_id) return;
+                if (!allAgentIds || allAgentIds.length === 0) return;
                 setCallsLoading(true);
                 setCallsError(null);
-                // re-fetch calls using direct VAPI API
+                // re-fetch calls using multi-agent approach
                 (async () => {
                   try {
-                    console.log('Refreshing calls for agent_id:', userData.agent_id);
+                    console.log('Refreshing calls for all agent IDs:', allAgentIds);
                     
                     const VAPI_KEY = import.meta.env.VITE_VAPI_KEY;
                     if (!VAPI_KEY) {
                       throw new Error('VAPI key not configured');
                     }
 
-                    // Call VAPI API directly to get calls for this agent
+                    // Call VAPI API directly to get all calls
                     const response = await fetch('https://api.vapi.ai/call', {
                       method: 'GET',
                       headers: {
@@ -342,15 +382,18 @@ export const DashboardCalls: React.FC = () => {
                     }
 
                     const allCalls = await response.json();
-                    console.log('Refreshed calls from VAPI:', allCalls);
+                    console.log('Refreshed all calls from VAPI:', allCalls);
 
-                    // Filter calls for this specific agent
-                    const agentCalls = Array.isArray(allCalls) 
-                      ? allCalls.filter(call => call.assistant?.id === userData.agent_id || call.assistantId === userData.agent_id)
+                    // Filter calls for all agent IDs
+                    const userCalls = Array.isArray(allCalls) 
+                      ? allCalls.filter(call => {
+                          const callAgentId = call.assistant?.id || call.assistantId;
+                          return allAgentIds.includes(callAgentId);
+                        })
                       : [];
                       
-                    console.log('Filtered refreshed calls for agent:', agentCalls);
-                    setCalls(agentCalls);
+                    console.log(`Refreshed: ${userCalls.length} calls for ${allAgentIds.length} agents`);
+                    setCalls(userCalls);
                   } catch (e: any) {
                     console.error('Error refreshing calls from VAPI:', e);
                     setCallsError(e?.message || "Failed to refresh call history");

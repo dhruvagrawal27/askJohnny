@@ -482,21 +482,6 @@ export const DashboardOutbound: React.FC = () => {
 
   return (
     <div className="p-8 space-y-6">
-      {/* Migration Notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-blue-900">System Update Notice</h3>
-            <p className="text-sm text-blue-800 mt-1">
-              The Outbound Calls feature has been updated to work with our new Supabase architecture. 
-              Campaign creation functionality is working, but campaign history and analytics will be fully 
-              implemented in upcoming updates. You can create campaigns which will be processed by our webhook system.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">

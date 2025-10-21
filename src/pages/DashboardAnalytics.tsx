@@ -14,12 +14,14 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
-import { fetchUserByClerkId } from "../lib/dataService";
+import { fetchUserByClerkId, getCampaignsByClerkId } from "../lib/dataService";
 
 const DashboardAnalytics: React.FC = () => {
   // Clerk user
   const { user, isLoaded, isSignedIn } = useUser();
   const [userData, setUserData] = useState<any>(null);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [allAgentIds, setAllAgentIds] = useState<string[]>([]);
   const [calls, setCalls] = useState<any[]>([]);
   const [callsLoading, setCallsLoading] = useState(false);
   const [callsError, setCallsError] = useState<string | null>(null);
@@ -51,15 +53,50 @@ const DashboardAnalytics: React.FC = () => {
         setUserDataLoading(false);
       }
     };
+
+    // Fetch campaigns to get all agent IDs
+    const fetchCampaigns = async () => {
+      if (!isLoaded || !isSignedIn || !user) return;
+      try {
+        console.log('Fetching campaigns for analytics agent IDs...');
+        const campaignsData = await getCampaignsByClerkId(user.id);
+        setCampaigns(campaignsData || []);
+        console.log('Analytics campaigns loaded:', campaignsData);
+      } catch (e: any) {
+        console.error('Error fetching campaigns for analytics:', e);
+        setCampaigns([]);
+      }
+    };
     
     fetchUserData();
+    fetchCampaigns();
   }, [isLoaded, isSignedIn, user]);
 
-  // Fetch call history from Vapi API when agent_id is available
+  // Combine all agent IDs (initial + campaign agents)
+  useEffect(() => {
+    const agentIds: string[] = [];
+    
+    // Add initial agent ID
+    if (userData?.agent_id) {
+      agentIds.push(userData.agent_id);
+    }
+    
+    // Add campaign agent IDs
+    campaigns.forEach(campaign => {
+      if (campaign.agent_id && !agentIds.includes(campaign.agent_id)) {
+        agentIds.push(campaign.agent_id);
+      }
+    });
+    
+    console.log('Combined agent IDs for analytics:', agentIds);
+    setAllAgentIds(agentIds);
+  }, [userData, campaigns]);
+
+  // Fetch call history from Vapi API when agent IDs are available
   useEffect(() => {
     const fetchCalls = async () => {
-      if (!userData?.agent_id) {
-        console.log('No agent_id available for fetching calls');
+      if (!allAgentIds || allAgentIds.length === 0) {
+        console.log('No agent IDs available for fetching analytics calls');
         setCalls([]);
         return;
       }
@@ -68,14 +105,14 @@ const DashboardAnalytics: React.FC = () => {
       setCallsError(null);
       
       try {
-        console.log('Fetching calls for agent_id:', userData.agent_id);
+        console.log('Fetching analytics calls for all agent IDs:', allAgentIds);
         
         const VAPI_KEY = import.meta.env.VITE_VAPI_KEY;
         if (!VAPI_KEY) {
           throw new Error('VAPI key not configured');
         }
 
-        // Call VAPI API directly to get calls for this agent
+        // Call VAPI API directly to get all calls
         const response = await fetch('https://api.vapi.ai/call', {
           method: 'GET',
           headers: {
@@ -90,17 +127,20 @@ const DashboardAnalytics: React.FC = () => {
         }
 
         const allCalls = await response.json();
-        console.log('All calls from VAPI:', allCalls);
+        console.log('All calls from VAPI for analytics:', allCalls);
 
-        // Filter calls for this specific agent
-        const agentCalls = Array.isArray(allCalls) 
-          ? allCalls.filter(call => call.assistant?.id === userData.agent_id || call.assistantId === userData.agent_id)
+        // Filter calls for all agent IDs
+        const userCalls = Array.isArray(allCalls) 
+          ? allCalls.filter(call => {
+              const callAgentId = call.assistant?.id || call.assistantId;
+              return allAgentIds.includes(callAgentId);
+            })
           : [];
           
-        console.log('Filtered calls for agent:', agentCalls);
-        setCalls(agentCalls);
+        console.log(`Filtered ${userCalls.length} analytics calls for ${allAgentIds.length} agents`);
+        setCalls(userCalls);
       } catch (e: any) {
-        console.error('Error fetching calls from VAPI:', e);
+        console.error('Error fetching analytics calls from VAPI:', e);
         setCallsError(e?.message || "Failed to fetch call history");
         setCalls([]);
       } finally {
@@ -109,7 +149,7 @@ const DashboardAnalytics: React.FC = () => {
     };
     
     fetchCalls();
-  }, [userData?.agent_id]);
+  }, [allAgentIds]); // Changed dependency from userData?.agent_id to allAgentIds
 
   // ========== Analytics Computation ========== //
   const analytics = useMemo(() => {
@@ -277,20 +317,20 @@ const DashboardAnalytics: React.FC = () => {
           )}
           {userData?.agent_id && (
             <span className="text-xs text-green-600">
-              Agent: {userData.agent_id}
+              Tracking {allAgentIds.length} agent(s): {allAgentIds.join(', ') || userData.agent_id}
             </span>
           )}
         </div>
       </div>
 
       {/* Debug Info */}
-      {!userData?.agent_id && !userDataLoading && (
+      {!allAgentIds || allAgentIds.length === 0 && !userDataLoading && (
         <Card className="bg-yellow-50 border-yellow-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
               <div>
-                <p className="text-sm font-medium text-yellow-800">No Agent ID Found</p>
+                <p className="text-sm font-medium text-yellow-800">No Agent IDs Found</p>
                 <p className="text-xs text-yellow-700">
                   Please complete agent training from the main dashboard to enable call analytics.
                 </p>
@@ -300,7 +340,7 @@ const DashboardAnalytics: React.FC = () => {
         </Card>
       )}
 
-      {userData?.agent_id && calls.length === 0 && !callsLoading && (
+      {allAgentIds && allAgentIds.length > 0 && calls.length === 0 && !callsLoading && (
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -308,7 +348,7 @@ const DashboardAnalytics: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-blue-800">No Calls Yet</p>
                 <p className="text-xs text-blue-700">
-                  Make your first call to see analytics data here. Agent ID: {userData.agent_id}
+                  Make your first call to see analytics data here. Tracking {allAgentIds.length} agent(s): {allAgentIds.join(', ')}
                 </p>
               </div>
             </div>

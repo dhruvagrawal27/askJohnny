@@ -7,7 +7,6 @@ import {
   Clock,
   TrendingUp,
   Phone,
-  DollarSign,
   UserCheck,
   UserX,
   PieChart,
@@ -15,64 +14,100 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
+import { fetchUserByClerkId } from "../lib/dataService";
 
 const DashboardAnalytics: React.FC = () => {
-  const VITE_BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
-
   // Clerk user
   const { user, isLoaded, isSignedIn } = useUser();
   const [userData, setUserData] = useState<any>(null);
   const [calls, setCalls] = useState<any[]>([]);
   const [callsLoading, setCallsLoading] = useState(false);
   const [callsError, setCallsError] = useState<string | null>(null);
+  const [userDataLoading, setUserDataLoading] = useState(false);
 
-  // Fetch user data from backend
+  // Fetch user data from Supabase
   useEffect(() => {
     const fetchUserData = async () => {
       if (!isLoaded || !isSignedIn || !user) return;
+      
+      setUserDataLoading(true);
       try {
-        const res = await fetch(
-          `${VITE_BACKEND_BASE_URL}/api/users/clerk/${user.id}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch user data from backend");
-        const data = await res.json();
-        setUserData(data);
-        // console.log("Fetched user data:", data);
+        console.log('Fetching user data for analytics...');
+        const userEmail = user.emailAddresses[0]?.emailAddress || user.id + '@clerk.temp';
+        const userData = await fetchUserByClerkId(user.id, userEmail, false);
+        
+        if (!userData) {
+          console.log('No user data found for analytics');
+          setUserData(null);
+          return;
+        }
+        
+        console.log('User data loaded for analytics:', userData);
+        setUserData(userData);
       } catch (e: any) {
-        // Optionally handle error here if you want to show a userData error
+        console.error('Error fetching user data for analytics:', e);
+        setUserData(null);
+      } finally {
+        setUserDataLoading(false);
       }
     };
+    
     fetchUserData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, isSignedIn, user]);
 
   // Fetch call history from Vapi API when agent_id is available
   useEffect(() => {
     const fetchCalls = async () => {
-      if (!userData?.agent_id) return;
+      if (!userData?.agent_id) {
+        console.log('No agent_id available for fetching calls');
+        setCalls([]);
+        return;
+      }
+      
       setCallsLoading(true);
       setCallsError(null);
+      
       try {
-        const baseUrl =
-          (import.meta as any).env.VITE_BACKEND_BASE_URL ||
-          "http://localhost:3000";
-        const url = `${baseUrl}/api/users/vapi-call?assistant_id=${encodeURIComponent(
-          userData.agent_id
-        )}`;
-        const res = await fetch(url, { method: "GET" });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err?.error || "Failed to fetch call history");
+        console.log('Fetching calls for agent_id:', userData.agent_id);
+        
+        const VAPI_KEY = import.meta.env.VITE_VAPI_KEY;
+        if (!VAPI_KEY) {
+          throw new Error('VAPI key not configured');
         }
-        const data = await res.json();
-        setCalls(Array.isArray(data) ? data : []);
+
+        // Call VAPI API directly to get calls for this agent
+        const response = await fetch('https://api.vapi.ai/call', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${VAPI_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`VAPI API error: ${response.status} - ${errorText}`);
+        }
+
+        const allCalls = await response.json();
+        console.log('All calls from VAPI:', allCalls);
+
+        // Filter calls for this specific agent
+        const agentCalls = Array.isArray(allCalls) 
+          ? allCalls.filter(call => call.assistant?.id === userData.agent_id || call.assistantId === userData.agent_id)
+          : [];
+          
+        console.log('Filtered calls for agent:', agentCalls);
+        setCalls(agentCalls);
       } catch (e: any) {
-        setCallsError(e?.message || "Unknown error fetching calls");
+        console.error('Error fetching calls from VAPI:', e);
+        setCallsError(e?.message || "Failed to fetch call history");
         setCalls([]);
       } finally {
         setCallsLoading(false);
       }
     };
+    
     fetchCalls();
   }, [userData?.agent_id]);
 
@@ -223,18 +258,63 @@ const DashboardAnalytics: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-        {callsLoading && (
-          <span className="text-xs text-muted-foreground animate-pulse">
-            Loading data...
-          </span>
-        )}
-        {callsError && (
-          <span className="text-xs text-red-500">
-            <AlertTriangle className="inline w-4 h-4 mr-1" />
-            {callsError}
-          </span>
-        )}
+        <div className="flex items-center gap-4">
+          {userDataLoading && (
+            <span className="text-xs text-muted-foreground animate-pulse">
+              Loading user data...
+            </span>
+          )}
+          {callsLoading && (
+            <span className="text-xs text-muted-foreground animate-pulse">
+              Loading call data...
+            </span>
+          )}
+          {callsError && (
+            <span className="text-xs text-red-500">
+              <AlertTriangle className="inline w-4 h-4 mr-1" />
+              {callsError}
+            </span>
+          )}
+          {userData?.agent_id && (
+            <span className="text-xs text-green-600">
+              Agent: {userData.agent_id}
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Debug Info */}
+      {!userData?.agent_id && !userDataLoading && (
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-600" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800">No Agent ID Found</p>
+                <p className="text-xs text-yellow-700">
+                  Please complete agent training from the main dashboard to enable call analytics.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {userData?.agent_id && calls.length === 0 && !callsLoading && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <PhoneCall className="h-5 w-5 text-blue-600" />
+              <div>
+                <p className="text-sm font-medium text-blue-800">No Calls Yet</p>
+                <p className="text-xs text-blue-700">
+                  Make your first call to see analytics data here. Agent ID: {userData.agent_id}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -334,7 +414,6 @@ const DashboardAnalytics: React.FC = () => {
         {/* Conversion Rate & Unique Callers */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
-            export default DashboardAnalytics;
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
@@ -356,27 +435,7 @@ const DashboardAnalytics: React.FC = () => {
       </div>
 
       {/* More Analytics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {/* Cost */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Total Cost</p>
-                <p className="text-3xl font-bold mb-1">
-                  ${analytics.costTotal}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Transport: $
-                  {analytics.costBreakdown.transport?.toFixed(2) || 0}
-                </p>
-              </div>
-              <div className="p-3 bg-green-50 rounded-full">
-                <DollarSign className="h-6 w-6 text-green-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {/* Missed Calls */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">

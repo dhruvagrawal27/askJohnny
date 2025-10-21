@@ -22,7 +22,6 @@ import {
   Users,
   PhoneCall,
   RefreshCw,
-  Trash2,
   X,
   User,
   Hash,
@@ -108,7 +107,8 @@ export const DashboardCalls: React.FC = () => {
   const fetchUserData = async () => {
     if (!isLoaded || !isSignedIn || !user) return;
     try {
-      const data = await fetchUserByClerkId(user.id);
+      const userEmail = user.emailAddresses[0]?.emailAddress || user.id + '@clerk.temp';
+      const data = await fetchUserByClerkId(user.id, userEmail, false);
       setUserData(data);
       console.log("Fetched user data:", data);
     } catch (e: any) {
@@ -122,28 +122,53 @@ export const DashboardCalls: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, isSignedIn, user]);
 
-  // Fetch call history from Vapi API when agent_id is available
+  // Fetch call history from Vapi API directly when agent_id is available
   useEffect(() => {
     const fetchCalls = async () => {
-      if (!userData?.agent_id) return;
+      if (!userData?.agent_id) {
+        console.log('No agent_id available for fetching calls');
+        setCalls([]);
+        return;
+      }
+      
       setCallsLoading(true);
       setCallsError(null);
+      
       try {
-        const baseUrl =
-          (import.meta as any).env.VITE_BACKEND_BASE_URL ||
-          "http://localhost:3000";
-        const url = `${baseUrl}/api/users/vapi-call?assistant_id=${encodeURIComponent(
-          userData.agent_id
-        )}`;
-        const res = await fetch(url, { method: "GET" });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err?.error || "Failed to fetch call history");
+        console.log('Fetching calls for agent_id:', userData.agent_id);
+        
+        const VAPI_KEY = import.meta.env.VITE_VAPI_KEY;
+        if (!VAPI_KEY) {
+          throw new Error('VAPI key not configured');
         }
-        const data = await res.json();
-        setCalls(Array.isArray(data) ? data : []);
+
+        // Call VAPI API directly to get calls for this agent
+        const response = await fetch('https://api.vapi.ai/call', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${VAPI_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`VAPI API error: ${response.status} - ${errorText}`);
+        }
+
+        const allCalls = await response.json();
+        console.log('All calls from VAPI:', allCalls);
+
+        // Filter calls for this specific agent
+        const agentCalls = Array.isArray(allCalls) 
+          ? allCalls.filter(call => call.assistant?.id === userData.agent_id || call.assistantId === userData.agent_id)
+          : [];
+          
+        console.log('Filtered calls for agent:', agentCalls);
+        setCalls(agentCalls);
       } catch (e: any) {
-        setCallsError(e?.message || "Unknown error fetching calls");
+        console.error('Error fetching calls from VAPI:', e);
+        setCallsError(e?.message || "Failed to fetch call history");
         setCalls([]);
       } finally {
         setCallsLoading(false);
@@ -289,28 +314,46 @@ export const DashboardCalls: React.FC = () => {
               size="sm"
               className="gap-1"
               onClick={() => {
+                if (!userData?.agent_id) return;
                 setCallsLoading(true);
                 setCallsError(null);
-                // re-fetch calls
+                // re-fetch calls using direct VAPI API
                 (async () => {
                   try {
-                    const baseUrl =
-                      (import.meta as any).env.VITE_BACKEND_BASE_URL ||
-                      "http://localhost:3000";
-                    const url = `${baseUrl}/api/users/vapi-call?assistant_id=${encodeURIComponent(
-                      userData.agent_id
-                    )}`;
-                    const res = await fetch(url, { method: "GET" });
-                    if (!res.ok) {
-                      const err = await res.json();
-                      throw new Error(
-                        err?.error || "Failed to fetch call history"
-                      );
+                    console.log('Refreshing calls for agent_id:', userData.agent_id);
+                    
+                    const VAPI_KEY = import.meta.env.VITE_VAPI_KEY;
+                    if (!VAPI_KEY) {
+                      throw new Error('VAPI key not configured');
                     }
-                    const data = await res.json();
-                    setCalls(Array.isArray(data) ? data : []);
+
+                    // Call VAPI API directly to get calls for this agent
+                    const response = await fetch('https://api.vapi.ai/call', {
+                      method: 'GET',
+                      headers: {
+                        'Authorization': `Bearer ${VAPI_KEY}`,
+                        'Content-Type': 'application/json',
+                      },
+                    });
+
+                    if (!response.ok) {
+                      const errorText = await response.text();
+                      throw new Error(`VAPI API error: ${response.status} - ${errorText}`);
+                    }
+
+                    const allCalls = await response.json();
+                    console.log('Refreshed calls from VAPI:', allCalls);
+
+                    // Filter calls for this specific agent
+                    const agentCalls = Array.isArray(allCalls) 
+                      ? allCalls.filter(call => call.assistant?.id === userData.agent_id || call.assistantId === userData.agent_id)
+                      : [];
+                      
+                    console.log('Filtered refreshed calls for agent:', agentCalls);
+                    setCalls(agentCalls);
                   } catch (e: any) {
-                    setCallsError(e?.message || "Unknown error fetching calls");
+                    console.error('Error refreshing calls from VAPI:', e);
+                    setCallsError(e?.message || "Failed to refresh call history");
                     setCalls([]);
                   } finally {
                     setCallsLoading(false);
@@ -321,23 +364,7 @@ export const DashboardCalls: React.FC = () => {
               <RefreshCw className="h-3 w-3" />
               Refresh
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1 text-red-500"
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Are you sure you want to delete all calls? This cannot be undone."
-                  )
-                ) {
-                  setCalls([]);
-                }
-              }}
-            >
-              <Trash2 className="h-3 w-3" />
-              Delete All
-            </Button>
+
           </div>
         </div>
       </div>
@@ -550,9 +577,6 @@ export const DashboardCalls: React.FC = () => {
                     Duration
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
-                    Cost
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     Actions
                   </th>
                 </tr>
@@ -560,7 +584,7 @@ export const DashboardCalls: React.FC = () => {
               <tbody className="bg-background divide-y divide-muted">
                 {callsLoading ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center">
+                    <td colSpan={4} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <div className="p-4 bg-muted rounded-full mb-4">
                           <Phone className="h-8 w-8 text-muted-foreground" />
@@ -573,7 +597,7 @@ export const DashboardCalls: React.FC = () => {
                   </tr>
                 ) : callsError ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center">
+                    <td colSpan={4} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <div className="p-4 bg-muted rounded-full mb-4">
                           <Phone className="h-8 w-8 text-muted-foreground" />
@@ -587,7 +611,7 @@ export const DashboardCalls: React.FC = () => {
                   </tr>
                 ) : paginatedCalls.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center">
+                    <td colSpan={4} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <div className="p-4 bg-muted rounded-full mb-4">
                           <Phone className="h-8 w-8 text-muted-foreground" />
@@ -613,7 +637,7 @@ export const DashboardCalls: React.FC = () => {
                       call.analysis?.structuredData?.phone_number ||
                       call.destination?.number ||
                       call.phoneNumber?.number ||
-                      "Unknown";
+                      "WebCall";
                     const startedAt = call.startedAt
                       ? new Date(call.startedAt)
                       : null;
@@ -634,12 +658,6 @@ export const DashboardCalls: React.FC = () => {
                       ? format(startedAt, "MM/dd/yyyy, hh:mm a")
                       : "-";
                     const endedReason = call.endedReason || "-";
-                    const cost =
-                      typeof call.cost === "number"
-                        ? `$${call.cost.toFixed(2)}`
-                        : call.costs && call.costs.length > 0
-                        ? `$${call.costs[0].cost.toFixed(2)}`
-                        : "-";
                     const recordingUrl =
                       call.artifact?.recordingUrl ||
                       call.artifact?.stereoRecordingUrl;
@@ -671,16 +689,14 @@ export const DashboardCalls: React.FC = () => {
                           {duration}
                         </td>
                         <td className="px-4 py-3 align-top whitespace-nowrap">
-                          {cost}
-                        </td>
-                        <td className="px-4 py-3 align-top whitespace-nowrap">
                           {recordingUrl && (
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(recordingUrl, "_blank");
+                                setSelectedCall(call);
+                                setModalOpen(true);
                               }}
                             >
                               <Play className="h-4 w-4" />
@@ -692,7 +708,8 @@ export const DashboardCalls: React.FC = () => {
                               size="icon"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                alert(transcript);
+                                setSelectedCall(call);
+                                setModalOpen(true);
                               }}
                             >
                               <MessageSquare className="h-4 w-4" />
@@ -705,7 +722,7 @@ export const DashboardCalls: React.FC = () => {
                 )}
                 {/* Call Details Modal */}
                 <tr className="hidden">
-                  <td colSpan={6}>
+                  <td colSpan={4}>
                     <CallDetailsModal
                       open={modalOpen}
                       onClose={() => setModalOpen(false)}

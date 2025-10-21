@@ -190,10 +190,27 @@ const Dashboard = () => {
     setError(null);
     
     try {
-      // Format FAQ data properly with questions and answers
-      const formattedFAQData = formatFAQData(userData.businessDetails?.faqData);
+      // Format FAQ data properly with questions and answers from database structure
+      let formattedFAQData = {};
+      
+      if (userData.businessDetails?.faqData && userData.businessDetails.faqData.category) {
+        // If FAQ data exists in the expected format, format it properly
+        const faqData = userData.businessDetails.faqData;
+        const categoryQuestions = getCategoryQuestions(faqData.category);
+        
+        const questionsAndAnswers = categoryQuestions.map((question, index) => ({
+          question: question,
+          answer: faqData.answers && faqData.answers[index] ? faqData.answers[index] : ""
+        }));
 
-      // Call the agent training webhook directly
+        formattedFAQData = {
+          category: faqData.category,
+          categoryLabel: getCategoryLabel(faqData.category),
+          questionsAndAnswers: questionsAndAnswers
+        };
+      }
+
+      // Call the agent training webhook directly with complete data structure
       const payload = {
         user_id: user.id,
         user_email: userData.email,
@@ -201,7 +218,7 @@ const Dashboard = () => {
         phone_number: userData.businessDetails?.data?.phone || userData.businessDetails?.phone,
         plan_name: userData.activePlan?.stripeProductId || "",
         timestamp: new Date().toISOString(),
-        businessDetails: userData.businessDetails?.data || userData.businessDetails, // Complete Google Maps data
+        businessDetails: userData.businessDetails?.data || {}, // Complete Google Maps data structure
         faqData: formattedFAQData // Properly formatted FAQ data with questions and answers
       };
 
@@ -245,8 +262,25 @@ const Dashboard = () => {
     setError(null);
     
     try {
-      // Format FAQ data properly with questions and answers
-      const formattedFAQData = formatFAQData(userData.businessDetails?.faqData);
+      // Format FAQ data properly with questions and answers from database structure
+      let formattedFAQData = {};
+      
+      if (userData.businessDetails?.faqData && userData.businessDetails.faqData.category) {
+        // If FAQ data exists in the expected format, format it properly
+        const faqData = userData.businessDetails.faqData;
+        const categoryQuestions = getCategoryQuestions(faqData.category);
+        
+        const questionsAndAnswers = categoryQuestions.map((question, index) => ({
+          question: question,
+          answer: faqData.answers && faqData.answers[index] ? faqData.answers[index] : ""
+        }));
+
+        formattedFAQData = {
+          category: faqData.category,
+          categoryLabel: getCategoryLabel(faqData.category),
+          questionsAndAnswers: questionsAndAnswers
+        };
+      }
 
       // 1. Call the external webhook 
       const payload = {
@@ -257,7 +291,7 @@ const Dashboard = () => {
         plan_name: userData.activePlan?.stripeProductId || "",
         timestamp: new Date().toISOString(),
         additional_details: additionalDetails || undefined,
-        businessDetails: userData.businessDetails?.data || userData.businessDetails, // Complete Google Maps data
+        businessDetails: userData.businessDetails?.data || {}, // Complete Google Maps data structure
         faqData: formattedFAQData // Properly formatted FAQ data with questions and answers
       };
 

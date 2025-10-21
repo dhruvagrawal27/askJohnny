@@ -255,7 +255,55 @@ function transformUserForFrontend(userData: any) {
 
   const businessName = userData.business_profile?.business_name || 
                       userData.business_profile?.google_data?.name || 
+                      userData.onboarding_data?.step1_data?.businessName ||
                       'Unknown Business'
+
+  // Merge business details from both business_profile and onboarding_data for complete information
+  const mergeBusinessDetails = () => {
+    const businessProfile = userData.business_profile
+    const step1Data = userData.onboarding_data?.step1_data
+    const step3bData = userData.onboarding_data?.step3b_data
+
+    if (!businessProfile && !step1Data) {
+      return null
+    }
+
+    // Use the full Google Maps data from onboarding if available, otherwise use business profile
+    const fullGoogleData = step1Data?.businessDetails || businessProfile?.google_data || {}
+    
+    return {
+      businessName: businessName,
+      data: {
+        // Prefer onboarding data (more complete) over business profile
+        ...(fullGoogleData || {}),
+        name: businessName,
+        address: fullGoogleData.formatted_address || businessProfile?.address || '',
+        phone: fullGoogleData.phone || businessProfile?.phone || '',
+        hours: businessProfile?.hours || '',
+        website: fullGoogleData.website || businessProfile?.website || null,
+        rating: fullGoogleData.rating || businessProfile?.rating || null,
+        types: fullGoogleData.types || [],
+        openingHours: fullGoogleData.openingHours || {},
+        reviews: fullGoogleData.reviews || [],
+        photos: fullGoogleData.photos || [],
+        place_id: fullGoogleData.place_id || businessProfile?.place_id || null,
+        geometry: fullGoogleData.geometry || null,
+        vicinity: fullGoogleData.vicinity || null,
+        userRatingsTotal: fullGoogleData.userRatingsTotal || null,
+        utcOffsetMinutes: fullGoogleData.utcOffsetMinutes || null,
+        location: fullGoogleData.location || null,
+        priceLevel: fullGoogleData.priceLevel || businessProfile?.price_level || null,
+        businessDescription: fullGoogleData.businessDescription || businessProfile?.business_description || '',
+        isOpen: fullGoogleData.isOpen || null
+      },
+      // Include FAQ data from step3b
+      faqData: step3bData ? {
+        category: step3bData.categoryId || businessProfile?.business_category || 'others',
+        categoryLabel: step3bData.categoryLabel || getCategoryLabel(step3bData.categoryId || businessProfile?.business_category || 'others'),
+        answers: step3bData.answers || []
+      } : {}
+    }
+  }
 
   return {
     _id: userData.id, // Keep for backward compatibility
@@ -267,21 +315,8 @@ function transformUserForFrontend(userData: any) {
     assigned_phone_number: userData.phone_number,
     clerk_id: userData.clerk_user_id,
     
-    // Business details (transformed from business_profile)
-    businessDetails: userData.business_profile ? {
-      businessName: userData.business_profile.business_name,
-      data: {
-        name: userData.business_profile.business_name,
-        address: userData.business_profile.address,
-        phone: userData.business_profile.phone,
-        hours: userData.business_profile.hours,
-        website: userData.business_profile.website,
-        rating: userData.business_profile.rating,
-        types: userData.business_profile.google_data?.types || [],
-        openingHours: userData.business_profile.google_data?.openingHours || {},
-        ...(userData.business_profile.google_data || {})
-      }
-    } : null,
+    // Enhanced business details with full onboarding data
+    businessDetails: mergeBusinessDetails(),
 
     // Preferences (transformed from call_preferences)
     preferences: userData.call_preferences ? {
@@ -307,6 +342,23 @@ function transformUserForFrontend(userData: any) {
       refresh_token: null
     }
   }
+}
+
+/**
+ * Get category label for business category
+ */
+function getCategoryLabel(categoryId: string): string {
+  const categoryLabels: { [key: string]: string } = {
+    restaurants: "Restaurants & Food Service",
+    healthcare: "Healthcare & Medical",
+    legal: "Legal & Law Firms",
+    real_estate: "Real Estate",
+    automotive: "Automotive Services",
+    fitness: "Fitness & Wellness",
+    others: "Other Business"
+  };
+  
+  return categoryLabels[categoryId] || "Other Business";
 }
 
 /**

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Play, MessageSquare } from "lucide-react";
+import { Play, Pause, Download, MessageSquare } from "lucide-react";
 import { TranscriptionModal } from "./TranscriptionModal";
 import { format } from "date-fns";
 import {
@@ -74,32 +74,83 @@ export const CallDetailsModal: React.FC<CallDetailsModalProps> = ({
   onClose,
   call,
 }) => {
+  const [transcriptionModalOpen, setTranscriptionModalOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
   if (!call) return null;
+  
   const startedAt = call.startedAt ? new Date(call.startedAt) : null;
   const endedAt = call.endedAt ? new Date(call.endedAt) : null;
 
-  let duration = "-";
+  let callDuration = "-";
   if (startedAt && endedAt) {
     const sec = Math.max(0, (endedAt.getTime() - startedAt.getTime()) / 1000);
     const m = Math.floor(sec / 60);
     const s = Math.round(sec % 60);
-    duration = `${m}m ${s}s`;
+    callDuration = `${m}m ${s}s`;
   }
 
-  const cost =
-    typeof call.cost === "number"
-      ? `$${call.cost.toFixed(2)}`
-      : call.costs && call.costs.length > 0
-      ? `$${call.costs[0].cost.toFixed(2)}`
-      : "-";
-
-  const recordingUrl =
-    call.artifact?.recordingUrl || call.artifact?.stereoRecordingUrl;
+  const recordingUrl = call.artifact?.recordingUrl || call.artifact?.stereoRecordingUrl;
   const transcript = call.artifact?.transcript;
+  
+  // Get caller info, display "WebCall" for unknown numbers
+  const callerNumber = call.customer?.number ||
+    call.analysis?.structuredData?.phone_number ||
+    call.destination?.number ||
+    call.phoneNumber?.number ||
+    "WebCall";
 
-  // State for transcript modal
-  const [transcriptionModalOpen, setTranscriptionModalOpen] =
-    React.useState(false);
+  // Audio player functions
+  const togglePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const seekTime = parseFloat(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = seekTime;
+      setCurrentTime(seekTime);
+    }
+  };
+
+  const downloadRecording = () => {
+    if (recordingUrl) {
+      const link = document.createElement('a');
+      link.href = recordingUrl;
+      link.download = `call-recording-${call.id}.wav`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -121,14 +172,7 @@ export const CallDetailsModal: React.FC<CallDetailsModalProps> = ({
                 call.phoneNumber?.name ||
                 "Unknown",
             ],
-            [
-              "Number",
-              call.customer?.number ||
-                call.analysis?.structuredData?.phone_number ||
-                call.destination?.number ||
-                call.phoneNumber?.number ||
-                "-",
-            ],
+            ["Number", callerNumber],
             ["Type", call.type || "-"],
             ["Status", call.status || "-"],
             [
@@ -139,8 +183,7 @@ export const CallDetailsModal: React.FC<CallDetailsModalProps> = ({
               "Ended At",
               endedAt ? format(endedAt, "MM/dd/yyyy, hh:mm a") : "-",
             ],
-            ["Duration", duration],
-            ["Cost", cost],
+            ["Duration", callDuration],
           ].map(([label, value]) => (
             <div key={label} className="space-y-1">
               <div className="font-semibold">{label}</div>
@@ -148,6 +191,71 @@ export const CallDetailsModal: React.FC<CallDetailsModalProps> = ({
             </div>
           ))}
         </div>
+
+        {/* Audio Player */}
+        {recordingUrl && (
+          <div className="mt-6">
+            <div className="font-semibold mb-2">Call Recording</div>
+            <div className="bg-muted rounded-lg p-4 space-y-3">
+              <audio
+                ref={audioRef}
+                src={recordingUrl}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={() => setIsPlaying(false)}
+                className="hidden"
+              />
+              
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={togglePlayPause}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isPlaying ? "Pause" : "Play"}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadRecording}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download
+                </Button>
+                
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>/</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+              
+              {duration > 0 && (
+                <div className="w-full">
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration}
+                    value={currentTime}
+                    onChange={handleSeek}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentTime / duration) * 100}%, #e5e7eb ${(currentTime / duration) * 100}%, #e5e7eb 100%)`
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Notes / Summary */}
         <div className="mt-6">
@@ -159,15 +267,6 @@ export const CallDetailsModal: React.FC<CallDetailsModalProps> = ({
 
         {/* Actions */}
         <div className="mt-6 flex flex-wrap gap-2">
-          {recordingUrl && (
-            <Button
-              variant="outline"
-              onClick={() => window.open(recordingUrl, "_blank")}
-              className="flex items-center"
-            >
-              <Play className="h-4 w-4 mr-2" /> Play Recording
-            </Button>
-          )}
           {transcript && (
             <Button
               variant="outline"
@@ -188,192 +287,76 @@ export const CallDetailsModal: React.FC<CallDetailsModalProps> = ({
         <div className="mt-6">
           <div className="font-semibold mb-2">Detailed Information</div>
           <Accordion type="multiple" className="w-full">
-            {call.costs && call.costs.length > 0 && (
-              <AccordionItem value="costs">
-                <AccordionTrigger>Costs Breakdown</AccordionTrigger>
-                <AccordionContent>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Type
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Provider
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Minutes
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Cost
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {call.costs.map((c, i) => (
-                          <tr key={i}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {c.type || "-"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {c.provider || "-"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {c.minutes ? c.minutes.toFixed(2) : "-"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {c.cost ? `$${c.cost.toFixed(4)}` : "-"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
             {call.analysis && (
               <AccordionItem value="analysis">
                 <AccordionTrigger>Analysis Details</AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="font-semibold">Summary</div>
-                      <div className="text-sm break-words">
-                        {call.analysis.summary || "-"}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-semibold">Structured Data</div>
-                      <pre className="bg-muted rounded-lg p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap break-words">
-                        {JSON.stringify(
-                          call.analysis.structuredData ||
-                            call.analysis.structuredDataMulti,
-                          null,
-                          2
-                        ) || "-"}
-                      </pre>
-                    </div>
-                    <div>
-                      <div className="font-semibold">Success Evaluation</div>
-                      <div className="text-sm break-words">
-                        {call.analysis.successEvaluation || "-"}
-                      </div>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            {call.messages && call.messages.length > 0 && (
-              <AccordionItem value="messages">
-                <AccordionTrigger>Messages Log</AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4 max-h-64 overflow-y-auto">
-                    {call.messages.map((m: any, i: number) => (
-                      <div key={i} className="border-b pb-2 last:border-b-0">
-                        <div className="font-semibold capitalize">
-                          {m.role || "Unknown"}
+                  <div className="space-y-6">
+                    {call.analysis.summary && (
+                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <div className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                          Call Summary
                         </div>
-                        <div className="text-sm break-words whitespace-pre-wrap">
-                          {m.message || m.content || "-"}
+                        <div className="text-blue-800 text-sm leading-relaxed">
+                          {call.analysis.summary}
                         </div>
-                        {m.tool_calls && (
-                          <pre className="bg-muted rounded-lg p-3 text-xs overflow-x-auto whitespace-pre-wrap break-words mt-2">
-                            {JSON.stringify(m.tool_calls, null, 2)}
-                          </pre>
-                        )}
                       </div>
-                    ))}
+                    )}
+                    
+                    {call.analysis.structuredData && (
+                      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                        <div className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                          Extracted Information
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {Object.entries(call.analysis.structuredData).map(([key, value]) => (
+                            <div key={key} className="bg-white rounded p-3 border">
+                              <div className="font-medium text-green-800 text-xs uppercase tracking-wide mb-1">
+                                {key.replace(/_/g, ' ')}
+                              </div>
+                              <div className="text-green-700 text-sm">
+                                {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {call.analysis.successEvaluation && (
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                          Success Evaluation
+                        </div>
+                        <div className="text-purple-800 text-sm leading-relaxed">
+                          {call.analysis.successEvaluation}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {call.analysis.structuredDataMulti && Array.isArray(call.analysis.structuredDataMulti) && (
+                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                        <div className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
+                          📈 Multi-Level Analysis
+                        </div>
+                        <div className="space-y-2">
+                          {call.analysis.structuredDataMulti.map((item, index) => (
+                            <div key={index} className="bg-white rounded p-3 border">
+                              <div className="font-medium text-orange-800 text-xs mb-2">
+                                Analysis Block {index + 1}
+                              </div>
+                              <pre className="text-orange-700 text-xs overflow-x-auto whitespace-pre-wrap">
+                                {JSON.stringify(item, null, 2)}
+                              </pre>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             )}
-            {call.performanceMetrics && (
-              <AccordionItem value="performance">
-                <AccordionTrigger>Performance Metrics</AccordionTrigger>
-                <AccordionContent>
-                  <pre className="bg-muted rounded-lg p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap break-words">
-                    {JSON.stringify(call.performanceMetrics, null, 2)}
-                  </pre>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            <AccordionItem value="other">
-              <AccordionTrigger>Other Details</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-1">
-                    <div className="font-semibold">Org ID</div>
-                    <div className="break-words">{call.orgId || "-"}</div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-semibold">Created At</div>
-                    <div className="break-words">
-                      {call.createdAt
-                        ? format(
-                            new Date(call.createdAt),
-                            "MM/dd/yyyy, hh:mm a"
-                          )
-                        : "-"}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-semibold">Updated At</div>
-                    <div className="break-words">
-                      {call.updatedAt
-                        ? format(
-                            new Date(call.updatedAt),
-                            "MM/dd/yyyy, hh:mm a"
-                          )
-                        : "-"}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-semibold">Assistant ID</div>
-                    <div className="break-words">{call.assistantId || "-"}</div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-semibold">Web Call URL</div>
-                    <div className="break-words">{call.webCallUrl || "-"}</div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-semibold">Ended Reason</div>
-                    <div className="break-words">{call.endedReason || "-"}</div>
-                  </div>
-                </div>
-                <div className="font-semibold mb-2">Additional Properties</div>
-                <pre className="bg-muted rounded-lg p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap break-words">
-                  {JSON.stringify(
-                    {
-                      variableValues: call.variableValues,
-                      variables: call.variables,
-                      monitor: call.monitor,
-                      transport: call.transport,
-                      logUrl: call.logUrl,
-                      nodes: call.nodes,
-                      transfers: call.transfers,
-                    },
-                    null,
-                    2
-                  )}
-                </pre>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-
-        {/* Full Raw Data - Collapsible */}
-        <div className="mt-6">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="raw-data">
-              <AccordionTrigger>Full Raw Data</AccordionTrigger>
-              <AccordionContent>
-                <pre className="bg-muted rounded-lg p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap break-words">
-                  {JSON.stringify(call, null, 2)}
-                </pre>
-              </AccordionContent>
-            </AccordionItem>
           </Accordion>
         </div>
       </DialogContent>

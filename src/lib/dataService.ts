@@ -207,6 +207,133 @@ export async function completeOnboarding(clerkUserId: string) {
 }
 
 // ====================================
+// CAMPAIGNS OPERATIONS
+// ====================================
+
+export async function createCampaign(
+  clerkUserId: string,
+  campaignData: {
+    vapi_campaign_id: string
+    name: string
+    description?: string
+    call_script?: string
+    campaign_type?: string
+    agent_id?: string
+    status?: string
+    recipients_count?: number
+    webhook_data?: any
+  }
+) {
+  try {
+    console.log('Creating campaign:', { clerkUserId, campaignData })
+    
+    // Get user first
+    const userData = await getUserByClerkId(clerkUserId)
+    if (!userData) {
+      throw new Error('User not found')
+    }
+
+    const { data, error } = await supabase
+      .from('campaigns')
+      .insert({
+        user_id: userData.id,
+        vapi_campaign_id: campaignData.vapi_campaign_id,
+        name: campaignData.name,
+        description: campaignData.description,
+        call_script: campaignData.call_script,
+        campaign_type: campaignData.campaign_type,
+        agent_id: campaignData.agent_id,
+        status: campaignData.status || 'Active',
+        recipients_count: campaignData.recipients_count || 0,
+        webhook_data: campaignData.webhook_data
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating campaign:', error)
+      throw error
+    }
+
+    console.log('Campaign created successfully:', data)
+    return data
+  } catch (error) {
+    console.error('Error creating campaign:', error)
+    throw error
+  }
+}
+
+export async function getCampaignsByClerkId(clerkUserId: string) {
+  try {
+    console.log('Fetching campaigns for user:', clerkUserId)
+    
+    // Get user first
+    const userData = await getUserByClerkId(clerkUserId)
+    if (!userData) {
+      console.log('User not found for campaigns')
+      return []
+    }
+
+    const { data, error } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('user_id', userData.id)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching campaigns:', error)
+      throw error
+    }
+
+    console.log('Campaigns fetched:', data)
+    return data || []
+  } catch (error) {
+    console.error('Error fetching campaigns:', error)
+    throw error
+  }
+}
+
+export async function updateCampaignStatus(
+  clerkUserId: string,
+  vapiCampaignId: string,
+  updates: {
+    status?: string
+    calls_completed?: number
+    calls_failed?: number
+    webhook_data?: any
+  }
+) {
+  try {
+    console.log('Updating campaign status:', { clerkUserId, vapiCampaignId, updates })
+    
+    // Get user first
+    const userData = await getUserByClerkId(clerkUserId)
+    if (!userData) {
+      throw new Error('User not found')
+    }
+
+    const { data, error } = await supabase
+      .from('campaigns')
+      .update(updates)
+      .eq('user_id', userData.id)
+      .eq('vapi_campaign_id', vapiCampaignId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating campaign:', error)
+      throw error
+    }
+
+    console.log('Campaign updated successfully:', data)
+    return data
+  } catch (error) {
+    console.error('Error updating campaign:', error)
+    throw error
+  }
+}
+
+// ====================================
 // WEBHOOK OPERATIONS (replace backend calls)
 // ====================================
 
@@ -438,6 +565,9 @@ export default {
   saveOnboardingStepData,
   completeOnboarding,
   processAgentWebhookResponse,
+  createCampaign,
+  getCampaignsByClerkId,
+  updateCampaignStatus,
   checkDatabaseHealth,
   setDefaultVoice
 }

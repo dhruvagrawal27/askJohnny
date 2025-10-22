@@ -11,7 +11,6 @@ import {
   Info,
   User2,
   Phone,
-  Voicemail,
   Clock,
   ListChecks,
 } from "lucide-react";
@@ -336,12 +335,27 @@ const Dashboard = () => {
       // Get user email
       const userEmail = user.emailAddresses[0]?.emailAddress || user.id + '@clerk.temp'
       
-      // Try to fetch existing user, but don't create if missing
+      // Try to fetch existing user first
       let userData = await fetchUserByClerkId(user.id, userEmail, false);
       
-      // If user doesn't exist OR has incomplete onboarding, redirect to onboarding
-      if (!userData || !userData.businessDetails || !userData.activePlan) {
-        console.log('User needs to complete onboarding. Redirecting...');
+      // If user doesn't exist, create them automatically for returning users
+      if (!userData) {
+        console.log('User not found in database. Creating user record...');
+        try {
+          userData = await fetchUserByClerkId(user.id, userEmail, true);
+        } catch (createError) {
+          console.error('Failed to create user record:', createError);
+          // If creation fails, redirect to onboarding
+          setTimeout(() => {
+            navigate('/onboarding');
+          }, 1000);
+          return;
+        }
+      }
+      
+      // If user exists but has incomplete onboarding, redirect to onboarding
+      if (userData && (!userData.businessDetails || !userData.activePlan)) {
+        console.log('User has incomplete onboarding. Redirecting...');
         
         // Small delay to prevent flash
         setTimeout(() => {
@@ -613,21 +627,6 @@ const Dashboard = () => {
               <div>Name: {user?.firstName || "Not set"}</div>
               <div>Email: {pretty(userData?.email)}</div>
               <div>Phone: {pretty(userData?.businessDetails?.data?.phone)}</div>
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Call Handling"
-            icon={<Voicemail className="text-yellow-500" size={18} />}
-          >
-            <div className="text-sm text-slate-600 space-y-1">
-              <div>
-                Voicemail: {userData?.preferences?.voicemail ? "Yes" : "No"}
-              </div>
-              <div>
-                Scheduling: {userData?.preferences?.scheduling ? "Yes" : "No"}
-              </div>
-              <div>FAQ: {userData?.preferences?.faq ? "Yes" : "No"}</div>
             </div>
           </CollapsibleSection>
 

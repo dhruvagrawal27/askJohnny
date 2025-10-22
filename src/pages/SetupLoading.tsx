@@ -12,6 +12,9 @@ interface OnboardingData {
   step3b?: any
   step4?: any
   step5?: any
+  business?: any        // New onboarding structure
+  servicePreference?: any
+  faqData?: any
 }
 
 const SetupLoading = () => {
@@ -141,7 +144,23 @@ const SetupLoading = () => {
       if (!onboardingData.step1?.businessName || !onboardingData.step5?.selectedPlan) {
         console.log('🔍 Context data incomplete, checking localStorage...');
         
-        // Try multiple localStorage keys
+        // Try multiple localStorage keys with debugging
+        console.log('🔍 Checking all possible localStorage keys...');
+        
+        const keys = ['onboarding_data', ONBOARDING_STORAGE_KEY, 'new_onboarding_data', 'selectedBusiness', 'onboarding_business'];
+        keys.forEach(key => {
+          const value = localStorage.getItem(key);
+          console.log(`📦 ${key}:`, value ? 'EXISTS' : 'NOT FOUND');
+          if (value) {
+            try {
+              const parsed = JSON.parse(value);
+              console.log(`📋 ${key} content:`, parsed);
+            } catch (e) {
+              console.log(`❌ ${key} not valid JSON:`, value);
+            }
+          }
+        });
+        
         let stored = localStorage.getItem('onboarding_data')
         if (!stored) {
           stored = localStorage.getItem(ONBOARDING_STORAGE_KEY)
@@ -156,24 +175,45 @@ const SetupLoading = () => {
           onboardingData = parsedData
         } else {
           console.error('❌ No onboarding data found in localStorage!');
+          throw new Error('Onboarding data not found. Please start the onboarding process again.');
         }
       }
 
       console.log('📋 Final onboarding data being used:', onboardingData)
 
-      // Check if phone number is available
-      const hasPhoneNumber = onboardingData.step1?.businessDetails?.phone || 
+      // Check if phone number is available - updated for new onboarding structure
+      const hasPhoneNumber = onboardingData.business?.phone ||  // New structure
+                           onboardingData.step1?.phone ||     // Alternative structure  
+                           onboardingData.step1?.businessDetails?.phone || 
                            onboardingData.step1?.businessDetails?.formatted_phone_number ||
                            onboardingData.step4?.phone;
       
+      console.log('📞 Phone number check:', {
+        newBusinessPhone: onboardingData.business?.phone,
+        step1Phone: onboardingData.step1?.phone,
+        step1BusinessPhone: onboardingData.step1?.businessDetails?.phone,
+        step1Formatted: onboardingData.step1?.businessDetails?.formatted_phone_number,
+        step4Phone: onboardingData.step4?.phone,
+        hasPhoneNumber,
+        fullBusinessData: onboardingData.business
+      });
+      
       if (!hasPhoneNumber) {
-        console.log('⚠️ No phone number found, need to collect from user');
-        throw new Error('Phone number is required for agent training. Please provide a business phone number.');
+        console.log('⚠️ No phone number found in onboarding data');
+        console.log('📋 Available onboarding data structure:', JSON.stringify(onboardingData, null, 2));
+        
+        // Try to continue without phone number for now - it can be added later
+        console.log('🚀 Continuing setup without phone number - can be added later from dashboard');
       }
 
-      // Validate required data
-      if (!onboardingData.step1?.businessName) {
-        throw new Error('Business name is required - onboarding data may be incomplete')
+      // Validate required data - check both new and old structures
+      const businessName = onboardingData.business?.name ||     // New structure
+                          onboardingData.step1?.businessName ||  // Old structure
+                          onboardingData.step1?.name;
+
+      if (!businessName) {
+        console.error('❌ Missing business name in onboarding data:', onboardingData);
+        throw new Error('Business information is missing. Please complete the onboarding process again.');
       }
       
       // Use default plan if not provided
@@ -204,12 +244,21 @@ const SetupLoading = () => {
 
       const businessData = {
         user_id: userId,
-        business_name: onboardingData.step1?.businessName || 'Your Business',
-        address: onboardingData.step1?.businessDetails?.address || onboardingData.step1?.businessDetails?.formatted_address || '',
-        phone: onboardingData.step1?.businessDetails?.phone || onboardingData.step4?.phone || '',
-        hours: onboardingData.step1?.businessDetails?.hours || '',
-        business_category: onboardingData.step3b?.categoryId || 'other',
-        category_answers: onboardingData.step3b?.answers || {},
+        business_name: businessName,
+        address: onboardingData.business?.address ||  // New structure
+                onboardingData.step1?.businessDetails?.address || 
+                onboardingData.step1?.businessDetails?.formatted_address || '',
+        phone: onboardingData.business?.phone ||  // New structure
+               onboardingData.step1?.phone ||     // Alternative
+               onboardingData.step1?.businessDetails?.phone || 
+               onboardingData.step1?.businessDetails?.formatted_phone_number ||
+               onboardingData.step4?.phone || '',
+        hours: onboardingData.business?.openingHours?.weekday_text?.join(', ') || // New structure
+              onboardingData.step1?.businessDetails?.hours || '',
+        business_category: onboardingData.faqData?.category ||      // New structure
+                          onboardingData.step3b?.categoryId || 'other',
+        category_answers: onboardingData.faqData?.answers ||        // New structure
+                         onboardingData.step3b?.answers || {},
       }
 
       console.log('💾 Business data to save:', businessData)
@@ -297,9 +346,12 @@ const SetupLoading = () => {
       await sleep(1500)
 
       try {
-        const phoneNumber = onboardingData.step1?.businessDetails?.phone || 
+        const phoneNumber = onboardingData.business?.phone ||  // New structure
+                           onboardingData.step1?.phone ||     // Alternative
+                           onboardingData.step1?.businessDetails?.phone || 
                            onboardingData.step1?.businessDetails?.formatted_phone_number ||
-                           onboardingData.step4?.phone;
+                           onboardingData.step4?.phone ||
+                           ''; // Allow empty phone number
 
         // Format FAQ data properly with questions and answers
         const faqData = onboardingData.step3b || {};
@@ -308,11 +360,12 @@ const SetupLoading = () => {
         const agentPayload = {
           user_id: user.id,
           user_email: user.emailAddresses[0]?.emailAddress || '',
-          business_name: onboardingData.step1?.businessName || 'Your Business',
+          business_name: businessName,
           phone_number: phoneNumber,
           plan_name: selectedPlan,
           timestamp: new Date().toISOString(),
-          businessDetails: onboardingData.step1?.businessDetails || {}, // Complete Google Maps data
+          businessDetails: onboardingData.business ||                    // New structure
+                          onboardingData.step1?.businessDetails || {},   // Old structure
           faqData: formattedFAQData // Properly formatted FAQ data with questions and answers
         };
 
@@ -330,7 +383,9 @@ const SetupLoading = () => {
 
         if (!webhookResponse.ok) {
           console.error('❌ Webhook failed:', webhookResponse.status, webhookResponse.statusText);
-          throw new Error(`Agent training webhook failed: ${webhookResponse.status}`);
+          const errorText = await webhookResponse.text();
+          console.error('❌ Webhook error response:', errorText);
+          throw new Error(`Agent training failed: ${webhookResponse.status} - ${errorText}`);
         }
 
         const webhookData = await webhookResponse.json();
@@ -562,7 +617,7 @@ const SetupLoading = () => {
           <div className="space-y-3">
             <button
               onClick={handleRetry}
-              className="btn-primary w-full"
+              className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold transition-colors"
             >
               Try Again
             </button>

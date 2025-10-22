@@ -1,6 +1,7 @@
 // components/onboarding/NewOnboarding.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { OnboardingState } from "../types/onboarding";
 
 // We'll import these step components later
@@ -12,6 +13,7 @@ import SignupStep from "./steps/SignupStep";
 
 const NewOnboarding: React.FC = () => {
   const navigate = useNavigate();
+  const { isSignedIn, isLoaded, user } = useUser();
   const [step, setStep] = useState<number>(1);
   const [maxStep, setMaxStep] = useState<number>(4); // Will be 5 if phone number needed
   const [onboardingData, setOnboardingData] = useState<OnboardingState>({
@@ -20,6 +22,32 @@ const NewOnboarding: React.FC = () => {
     faqData: null,
     completed: false,
   });
+
+  // Check authentication status
+  useEffect(() => {
+    console.log('Onboarding - Auth state:', { isLoaded, isSignedIn, userId: user?.id });
+    
+    if (isLoaded && !isSignedIn) {
+      console.log('Onboarding - User not authenticated, redirecting to home');
+      navigate("/");
+    }
+  }, [isLoaded, isSignedIn, navigate, user]);
+
+  // Show loading while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
+          <p className="text-purple-700">Loading authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return null; // Will redirect via useEffect
+  }
 
   // Dynamic steps based on whether phone number is needed
   const getSteps = () => {

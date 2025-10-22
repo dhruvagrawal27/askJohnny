@@ -1,6 +1,7 @@
 // pages/LandingPage.tsx
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 // Import all landing page sections
 import Hero from "../components/landing/Hero";
@@ -21,6 +22,15 @@ import Hero from "../components/landing/Hero";
 const LandingPage = () => {
   const [businessName, setBusinessName] = useState("");
   const navigate = useNavigate();
+  const { isSignedIn, isLoaded, user } = useUser();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      console.log('LandingPage - Authenticated user detected, redirecting to dashboard');
+      navigate("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, navigate]);
 
   useEffect(() => {
     // Only clear onboarding-related keys instead of wiping all localStorage
@@ -37,6 +47,18 @@ const LandingPage = () => {
       }
     }
   }, []);
+
+  // Show loading while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
+          <p className="text-purple-700">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = useCallback((value: string) => {
     setBusinessName(value);

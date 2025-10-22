@@ -34,24 +34,34 @@ import CustomSignup from "./pages/CustomSignup";
 
 // ---------- Guards ----------
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
+
+  console.log('ProtectedRoute - Auth state:', { isLoaded, isSignedIn, userId: user?.id });
 
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-          <p className="text-purple-700">Loading...</p>
+          <p className="text-purple-700">Loading authentication...</p>
         </div>
       </div>
     );
   }
 
-  return isSignedIn ? <>{children}</> : <Navigate to="/" replace />;
+  if (!isSignedIn) {
+    console.log('ProtectedRoute - User not signed in, redirecting to home');
+    return <Navigate to="/" replace />;
+  }
+
+  console.log('ProtectedRoute - User authenticated, rendering protected content');
+  return <>{children}</>;
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
+
+  console.log('PublicRoute - Auth state:', { isLoaded, isSignedIn, userId: user?.id });
 
   if (!isLoaded) {
     return (

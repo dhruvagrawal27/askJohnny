@@ -30,6 +30,20 @@ export const DashboardVoices: React.FC = () => {
   
   const { isLoaded, isSignedIn, user } = useUser();
 
+  // Load voice from localStorage on component mount
+  useEffect(() => {
+    const storedVoice = localStorage.getItem('current_voice');
+    if (storedVoice) {
+      try {
+        const parsedVoice = JSON.parse(storedVoice);
+        setCurrentVoice(parsedVoice);
+        console.log("Initial voice loaded from localStorage:", parsedVoice);
+      } catch (e) {
+        console.error("Error parsing stored voice on mount:", e);
+      }
+    }
+  }, []);
+
   // Fetch agent ID and current voice from backend
   useEffect(() => {
     const fetchUserData = async () => {
@@ -61,25 +75,75 @@ export const DashboardVoices: React.FC = () => {
       });
       
       if (response.ok) {
-        const agentData = await response.json();
-        const voice = agentData.voice;
+        const agentDataArray = await response.json();
+        console.log("VAPI API Response:", agentDataArray);
+        
+        // Handle both single object and array responses
+        const agentData = Array.isArray(agentDataArray) ? agentDataArray[0] : agentDataArray;
+        const voice = agentData?.voice;
         
         if (voice) {
-          // Determine provider and voice ID from VAPI response
-          let provider = "vapi";
-          let voiceId = voice.voiceId || voice.provider;
+          console.log("Voice data from VAPI:", voice);
           
-          // Check if it's 11Labs voice
-          if (voice.provider === "11labs" || voice.voice?.provider === "11labs") {
+          // Parse voice information from the structure
+          let provider = voice.provider || "vapi";
+          let voiceId = voice.voiceId;
+          
+          // Map provider names
+          if (provider === "11labs") {
             provider = "11labs";
-            voiceId = voice.voice?.voiceId || voice.voiceId;
+          } else if (provider === "vapi") {
+            provider = "vapi";
           }
           
-          setCurrentVoice({ provider, voiceId });
+          console.log("Parsed voice:", { provider, voiceId });
+          
+          const currentVoiceData = { provider, voiceId };
+          setCurrentVoice(currentVoiceData);
+          
+          // Store in localStorage for persistence
+          localStorage.setItem('current_voice', JSON.stringify(currentVoiceData));
+        } else {
+          console.log("No voice data found in VAPI response");
+          // Try to load from localStorage as fallback
+          const storedVoice = localStorage.getItem('current_voice');
+          if (storedVoice) {
+            try {
+              const parsedVoice = JSON.parse(storedVoice);
+              setCurrentVoice(parsedVoice);
+              console.log("Loaded voice from localStorage:", parsedVoice);
+            } catch (e) {
+              console.error("Error parsing stored voice:", e);
+            }
+          }
+        }
+      } else {
+        console.error("Failed to fetch agent data:", response.status, response.statusText);
+        // Try to load from localStorage as fallback
+        const storedVoice = localStorage.getItem('current_voice');
+        if (storedVoice) {
+          try {
+            const parsedVoice = JSON.parse(storedVoice);
+            setCurrentVoice(parsedVoice);
+            console.log("Loaded voice from localStorage (API failed):", parsedVoice);
+          } catch (e) {
+            console.error("Error parsing stored voice:", e);
+          }
         }
       }
     } catch (error) {
       console.error("Error fetching current voice:", error);
+      // Try to load from localStorage as fallback
+      const storedVoice = localStorage.getItem('current_voice');
+      if (storedVoice) {
+        try {
+          const parsedVoice = JSON.parse(storedVoice);
+          setCurrentVoice(parsedVoice);
+          console.log("Loaded voice from localStorage (error):", parsedVoice);
+        } catch (e) {
+          console.error("Error parsing stored voice:", e);
+        }
+      }
     } finally {
       setIsLoadingCurrentVoice(false);
     }
@@ -422,6 +486,11 @@ export const DashboardVoices: React.FC = () => {
       if (response.ok) {
         setSuccessMessage("Voice successfully updated!");
         setCurrentVoice(selectedVoice); // Update current voice after successful save
+        
+        // Store the updated voice in localStorage for persistence
+        localStorage.setItem('current_voice', JSON.stringify(selectedVoice));
+        console.log("Voice saved and stored:", selectedVoice);
+        
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         throw new Error("Failed to update voice");
@@ -486,6 +555,28 @@ export const DashboardVoices: React.FC = () => {
         </div>
       </div>
 
+      {/* Current Voice Display */}
+      {currentVoice && (
+        <Card className="bg-blue-50 border-blue-200 mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Volume2 className="h-5 w-5 text-blue-600" />
+              <div>
+                <p className="font-medium text-blue-800">
+                  Current Voice: {currentVoice.provider === "vapi" 
+                    ? vapiVoices.find(v => v.id === currentVoice.voiceId || v.name === currentVoice.voiceId)?.name || currentVoice.voiceId
+                    : elevenLabsVoices.find(v => v.voice_id === currentVoice.voiceId)?.name || currentVoice.voiceId
+                  }
+                </p>
+                <p className="text-sm text-blue-700">
+                  Provider: {currentVoice.provider === "11labs" ? "11Labs" : "Vapi"} • Voice ID: {currentVoice.voiceId}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Voice Selection */}
       {selectedVoice && (
         <Card className="bg-green-50 border-green-200">
@@ -496,8 +587,8 @@ export const DashboardVoices: React.FC = () => {
                 <div>
                   <p className="font-medium text-green-800">
                     Voice Selected: {selectedVoice.provider === "vapi" 
-                      ? vapiVoices.find(v => v.name === selectedVoice.voiceId)?.name
-                      : elevenLabsVoices.find(v => v.voice_id === selectedVoice.voiceId)?.name
+                      ? vapiVoices.find(v => v.id === selectedVoice.voiceId || v.name === selectedVoice.voiceId)?.name || selectedVoice.voiceId
+                      : elevenLabsVoices.find(v => v.voice_id === selectedVoice.voiceId)?.name || selectedVoice.voiceId
                     }
                   </p>
                   <p className="text-sm text-green-700">
@@ -532,10 +623,13 @@ export const DashboardVoices: React.FC = () => {
             const voiceId = isVapi ? voice.name : voice.voice_id;
             const displayName = isVapi ? voice.name : voice.name;
             const isSelected = selectedVoice?.provider === voice.provider && selectedVoice?.voiceId === voiceId;
+            // Improved voice matching logic
             const isCurrent = currentVoice?.provider === voice.provider && 
                             (currentVoice?.voiceId === voiceId || 
                              currentVoice?.voiceId === voice.name || 
-                             currentVoice?.voiceId === voice.id);
+                             currentVoice?.voiceId === voice.id ||
+                             (isVapi && currentVoice?.voiceId === voice.name.toLowerCase()) ||
+                             (!isVapi && currentVoice?.voiceId === voice.voice_id));
             const isPlaying = playingVoice === voiceId;
 
           return (

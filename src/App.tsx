@@ -28,6 +28,7 @@ import { DashboardCallPlanning } from "./pages/DashboardCallPlanning";
 import DashboardAnalytics from "./pages/DashboardAnalytics";
 import { DashboardKnowledgeBase } from "./pages/DashboardKnowledgeBase";
 import { DashboardVoices } from "./pages/DashboardVoice";
+import { DashboardIntegrations } from "./pages/DashboardIntegrations";
 import SetupProfile from "./pages/steps/SetupProfile";
 import DatabaseTest from "./pages/DatabaseTest";
 import CustomSignup from "./pages/CustomSignup";
@@ -326,6 +327,37 @@ function App() {
               }
             />
 
+            <Route
+              path="/dashboard/integrations"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary
+                      fallback={<ContentFallback title="Integrations error" />}
+                    >
+                      <DashboardIntegrations />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* OAuth Callback Route */}
+            <Route
+              path="/dashboard/integrations/google/callback"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary
+                      fallback={<ContentFallback title="OAuth Callback error" />}
+                    >
+                      <DashboardIntegrations />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
             {/* Placeholders for remaining sidebar items */}
             <Route
               path="/dashboard/website"
@@ -336,20 +368,6 @@ function App() {
                       fallback={<ContentFallback title="Website Agent error" />}
                     >
                       <Placeholder title="Website Agent" />
-                    </ErrorBoundary>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/integration"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <ErrorBoundary
-                      fallback={<ContentFallback title="Integration error" />}
-                    >
-                      <Placeholder title="Integration" />
                     </ErrorBoundary>
                   </Layout>
                 </ProtectedRoute>

@@ -31,9 +31,9 @@ const sidebarItems = [
   { title: "Outbound Calls", url: "/dashboard/outbound", icon: PhoneOutgoing },
   { title: "Voices", url: "/dashboard/voices", icon: Mic },
   { title: "Knowledge Base", url: "/dashboard/knowledge", icon: BookOpen },
+  { title: "Integrations", url: "/dashboard/integrations", icon: Settings },
   // { title: "Call Planning", url: "/dashboard/planning", icon: Calendar },
   // { title: "Website Agent", url: "/dashboard/website", icon: Globe },
-  // { title: "Integration", url: "/dashboard/integration", icon: Settings },
   // { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 

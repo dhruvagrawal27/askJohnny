@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   Globe,
   MapPin,
@@ -19,6 +20,14 @@ import {
   Mail,
   MessageSquare,
   Check,
+  Sparkles,
+  Zap,
+  Shield,
+  Users,
+  TrendingUp,
+  Activity,
+  CheckCircle,
+  ArrowRight,
 } from "lucide-react";
 
 export const DashboardHome: React.FC = () => {
@@ -54,9 +63,146 @@ Innovative Tech Solutions for Your Business Growth
   ];
 
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Home</h1>
+    <div className="p-8 space-y-8 max-w-6xl">
+      {/* Hero Section */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl -z-10"></div>
+        <div className="p-8 relative">
+          <div className="flex items-center justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Welcome Back!
+                  </h1>
+                  <p className="text-lg text-muted-foreground">
+                    Your AI assistant is ready to transform your business calls
+                  </p>
+                </div>
+              </div>
+              
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Activity className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-green-600">24/7</p>
+                      <p className="text-sm text-muted-foreground">AI Availability</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-blue-600">100%</p>
+                      <p className="text-sm text-muted-foreground">Call Coverage</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Users className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-purple-600">Smart</p>
+                      <p className="text-sm text-muted-foreground">AI Assistant</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="hidden lg:flex flex-col gap-3">
+              <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg">
+                <Zap className="h-4 w-4 mr-2" />
+                Test AI Agent
+              </Button>
+              <Button variant="outline" className="bg-white/60 backdrop-blur-sm border-white/20">
+                <Settings className="h-4 w-4 mr-2" />
+                Quick Setup
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-green-600/5"></div>
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Agent Status</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-semibold text-green-700">Active</span>
+                </div>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/5"></div>
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Phone Number</p>
+                <p className="font-semibold text-blue-700">Ready</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Phone className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/5"></div>
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Knowledge Base</p>
+                <p className="font-semibold text-purple-700">Trained</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Shield className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-orange-600/5"></div>
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Integration</p>
+                <p className="font-semibold text-orange-700">Connected</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Globe className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Training Sources */}

@@ -29,6 +29,7 @@ import DashboardAnalytics from "./pages/DashboardAnalytics";
 import { DashboardKnowledgeBase } from "./pages/DashboardKnowledgeBase";
 import { DashboardVoices } from "./pages/DashboardVoice";
 import { DashboardIntegrations } from "./pages/DashboardIntegrations";
+import { DashboardAgent } from "./pages/DashboardAgent";
 import SetupProfile from "./pages/steps/SetupProfile";
 import DatabaseTest from "./pages/DatabaseTest";
 import CustomSignup from "./pages/CustomSignup";
@@ -218,6 +219,20 @@ function App() {
               }
             />
 
+            <Route
+              path="/dashboard/agent"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ErrorBoundary
+                      fallback={<ContentFallback title="Agent error" />}
+                    >
+                      <DashboardAgent />
+                    </ErrorBoundary>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/calls"
               element={

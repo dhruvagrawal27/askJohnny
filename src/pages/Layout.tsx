@@ -20,12 +20,14 @@ import {
   Mic,
   Globe,
   Settings,
+  Bot,
 } from "lucide-react";
 import { UserButton } from "@clerk/clerk-react";
 import { Link, useLocation } from "react-router-dom";
 
 const sidebarItems = [
   { title: "Home", url: "/dashboard", icon: Home },
+  { title: "Agent", url: "/dashboard/agent", icon: Bot },
   { title: "Calls", url: "/dashboard/calls", icon: Phone },
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
   { title: "Outbound Calls", url: "/dashboard/outbound", icon: PhoneOutgoing },

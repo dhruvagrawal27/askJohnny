@@ -13,11 +13,22 @@ const CustomSignup: React.FC = () => {
     console.log('🔐 CustomSignup - Auth state check:', { isLoaded, isSignedIn });
     
     if (isLoaded && isSignedIn) {
-      console.log('✅ User is signed in, redirecting to setup-loading...');
-      // Redirect to setup-loading after successful signup
-      navigate('/setup-loading');
+      console.log('✅ CustomSignup - User already signed in');
+      console.log('🔍 CustomSignup - Checking for onboarding data...');
+      
+      // Check if user has completed onboarding
+      const hasOnboardingData = localStorage.getItem('onboarding_data') || 
+                                localStorage.getItem('new_onboarding_data');
+      
+      if (hasOnboardingData) {
+        console.log('✅ CustomSignup - Onboarding data found, going to setup-loading');
+        navigate('/setup-loading');
+      } else {
+        console.log('⚠️ CustomSignup - No onboarding data, redirecting to onboarding');
+        navigate('/new-onboarding');
+      }
     } else if (isLoaded && !isSignedIn) {
-      console.log('👤 User not signed in, showing signup form...');
+      console.log('👤 CustomSignup - User not signed in, showing signup form...');
     }
   }, [isLoaded, isSignedIn, navigate]);
 
@@ -47,8 +58,8 @@ const CustomSignup: React.FC = () => {
                 footerActionLink: "text-purple-600 hover:text-purple-700"
               }
             }}
-            redirectUrl="/setup-loading"
-            afterSignUpUrl="/setup-loading"
+            forceRedirectUrl="/new-onboarding"
+            fallbackRedirectUrl="/new-onboarding"
           />
         </div>
 

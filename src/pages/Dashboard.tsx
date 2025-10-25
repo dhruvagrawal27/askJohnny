@@ -233,17 +233,30 @@ const Dashboard = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to complete setup. Please try again.");
+        const errorText = await response.text();
+        console.error('Setup completion webhook failed:', response.status, errorText);
+        throw new Error(`Failed to complete setup: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
       console.log('Setup completion webhook response:', data);
+      
+      // Validate that we got agent data back
+      const agent = Array.isArray(data) ? data[0] : data;
+      if (!agent || !agent.id) {
+        console.warn('Warning: Webhook succeeded but no agent data received:', data);
+      } else {
+        console.log('Agent data received:', agent);
+      }
       
       // Process webhook response and update user
       const updatedUserData = await processAgentWebhookResponse(user.id, data);
       setUserData(updatedUserData);
 
       setTrainingStatus("completed");
+      
+      // Refresh the user data to ensure we have the latest agent information
+      await fetchUserData();
     } catch (e: any) {
       console.error('Setup completion error:', e);
       setTrainingStatus("error");
@@ -304,10 +317,21 @@ const Dashboard = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to start model training. Please try again.");
+        const errorText = await response.text();
+        console.error('Training webhook failed:', response.status, errorText);
+        throw new Error(`Failed to start model training: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Training webhook response:', data);
+      
+      // Validate that we got agent data back
+      const agent = Array.isArray(data) ? data[0] : data;
+      if (!agent || !agent.id) {
+        console.warn('Warning: Training webhook succeeded but no agent data received:', data);
+      } else {
+        console.log('Agent data received:', agent);
+      }
       
       // 2. Process webhook response and update user
       const updatedUserData = await processAgentWebhookResponse(user.id, data);
@@ -315,6 +339,9 @@ const Dashboard = () => {
 
       setTrainingStatus("completed");
       setShowReviewModal(false);
+      
+      // Refresh the user data to ensure we have the latest agent information
+      await fetchUserData();
     } catch (e: any) {
       setTrainingStatus("error");
       setError(getErrorMessage(e));
@@ -461,7 +488,7 @@ const Dashboard = () => {
               <h3 className="text-slate-900 font-medium truncate">Status</h3>
               <p className="text-sm text-slate-600 truncate">
                 {trainingStatus === "completed"
-                  ? "Training Started"
+                  ? "Agent Active"
                   : trainingStatus === "training"
                   ? "Training..."
                   : trainingStatus === "error"
@@ -550,10 +577,10 @@ const Dashboard = () => {
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                Training Started Successfully!
+                Agent Created Successfully!
               </h3>
               <p className="text-slate-600">
-                Your AI model training has been initiated. Agent ID:{" "}
+                Your AI agent is now active and ready to handle calls. Agent ID:{" "}
                 {pretty(userData?.agent_id)}.
               </p>
             </div>

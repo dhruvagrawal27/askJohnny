@@ -1,10 +1,10 @@
-// components/onboarding/NewOnboarding.tsx
+// Fixed NewOnboarding component - NO AUTHENTICATION CHECKS
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { OnboardingState } from "../types/onboarding";
 
-// We'll import these step components later
+// Step components
 import BusinessSearch from "./steps/BusinessSearch";
 import ServicePreferenceSelect from "./steps/ServicePreferenceSelect";
 import BusinessFAQ from "./steps/BusinessFAQ";
@@ -12,10 +12,12 @@ import ContactInfo from "./steps/ContactInfo";
 import SignupStep from "./steps/SignupStep";
 
 const NewOnboarding: React.FC = () => {
+  console.log('🔥 CLEAN NewOnboarding V5.0 - NO AUTH CHECKS');
+  
   const navigate = useNavigate();
   const { isSignedIn, isLoaded, user } = useUser();
   const [step, setStep] = useState<number>(1);
-  const [maxStep, setMaxStep] = useState<number>(4); // Will be 5 if phone number needed
+  const [maxStep, setMaxStep] = useState<number>(4);
   const [onboardingData, setOnboardingData] = useState<OnboardingState>({
     business: null,
     servicePreference: null,
@@ -23,33 +25,26 @@ const NewOnboarding: React.FC = () => {
     completed: false,
   });
 
-  // Check authentication status
+  // NO AUTHENTICATION CHECKS - ALLOW ALL USERS
   useEffect(() => {
-    console.log('Onboarding - Auth state:', { isLoaded, isSignedIn, userId: user?.id });
-    
-    if (isLoaded && !isSignedIn) {
-      console.log('Onboarding - User not authenticated, redirecting to home');
-      navigate("/");
-    }
-  }, [isLoaded, isSignedIn, navigate, user]);
+    console.log('✅ CLEAN NewOnboarding - Auth state:', { isLoaded, isSignedIn, userId: user?.id });
+    console.log('✅ CLEAN NewOnboarding - ALL USERS ALLOWED, NO REDIRECTS');
+    // NO AUTHENTICATION LOGIC - USERS CAN PROCEED REGARDLESS
+  }, [isLoaded, isSignedIn, user]);
 
-  // Show loading while checking authentication
+  // Show loading only for clerk loading
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-          <p className="text-purple-700">Loading authentication...</p>
+          <p className="text-purple-700">Loading...</p>
         </div>
       </div>
     );
   }
 
-  if (!isSignedIn) {
-    return null; // Will redirect via useEffect
-  }
-
-  // Dynamic steps based on whether phone number is needed
+  // Dynamic steps
   const getSteps = () => {
     const baseSteps = [
       { id: 1, label: "Business Search" },
@@ -76,7 +71,7 @@ const NewOnboarding: React.FC = () => {
 
   const steps = getSteps();
 
-  // Step handlers - these will be called by child components
+  // Step handlers
   const handleBusinessSearchDone = (businessData: any) => {
     console.log('✅ Step 1 Complete - Business Search:', businessData);
     setOnboardingData(prev => ({ ...prev, business: businessData }));
@@ -93,53 +88,57 @@ const NewOnboarding: React.FC = () => {
     console.log('✅ Step 3 Complete - FAQ Data:', faqData);
     setOnboardingData(prev => ({ ...prev, faqData }));
     
-    // Check if we need to collect phone number
     const hasPhoneNumber = onboardingData.business?.phone || 
                           onboardingData.business?.formatted_phone_number;
     
     if (!hasPhoneNumber) {
       console.log('📞 Phone number needed, going to contact info step');
       setMaxStep(5);
-      setStep(4); // Go to contact info step
+      setStep(4);
     } else {
       console.log('📞 Phone number available, skipping to signup');
       setMaxStep(4);
-      setStep(4); // Go directly to signup
+      setStep(4);
     }
   };
 
   const handleContactInfoDone = (contactData: any) => {
     console.log('✅ Step 4 Complete - Contact Info:', contactData);
     setOnboardingData(prev => ({ ...prev, contactInfo: contactData }));
-    setStep(5); // Go to signup
+    setStep(5);
   };
 
   const handleSignupDone = () => {
-    console.log('🚀 Step 4 Complete - Starting Signup Process');
-    console.log('📊 Final onboarding data:', onboardingData);
+    console.log('🚀 CRITICAL - handleSignupDone called!');
+    console.log('📊 CRITICAL - Current onboarding data:', onboardingData);
+    console.log('📊 CRITICAL - Current step:', step);
+    console.log('📊 CRITICAL - Max step:', maxStep);
     
-    // Validate we have all required data
     if (!onboardingData.business) {
-      console.error('❌ Missing business data!');
+      console.error('❌ CRITICAL - Missing business data!', onboardingData.business);
       alert('Missing business information. Please go back and complete step 1.');
       return;
     }
     
     if (!onboardingData.servicePreference) {
-      console.error('❌ Missing service preference!');
+      console.error('❌ CRITICAL - Missing service preference!', onboardingData.servicePreference);
       alert('Missing service preference. Please go back and complete step 2.');
       return;
     }
     
     if (!onboardingData.faqData) {
-      console.error('❌ Missing FAQ data!');
+      console.error('❌ CRITICAL - Missing FAQ data!', onboardingData.faqData);
       alert('Missing FAQ data. Please go back and complete step 3.');
       return;
     }
     
     console.log('✅ All required data present, formatting for storage...');
+    console.log('📝 DETAILED onboarding data check:');
+    console.log('  - Business:', onboardingData.business);
+    console.log('  - Service Preference:', onboardingData.servicePreference);  
+    console.log('  - FAQ Data:', onboardingData.faqData);
+    console.log('  - Contact Info:', onboardingData.contactInfo);
     
-    // Convert to the format expected by SetupLoading
     const formattedData = {
       step1: {
         businessName: onboardingData.business?.name,
@@ -151,14 +150,14 @@ const NewOnboarding: React.FC = () => {
         faq: onboardingData.servicePreference === 'basic_questions' || onboardingData.servicePreference === 'full_service'
       },
       step3: {
-        scheduleType: 'business_hours' // default
+        scheduleType: 'business_hours'
       },
       step3b: {
         categoryId: onboardingData.faqData?.category,
-        categoryLabel: 'Other Business', // Will be set by BusinessFAQ component
+        categoryLabel: 'Other Business',
         answers: onboardingData.faqData?.answers || {}
       },
-      step4: onboardingData.contactInfo || {}, // Contact info if collected
+      step4: onboardingData.contactInfo || {},
       step5: {
         selectedPlan: onboardingData.servicePreference || 'starter'
       }
@@ -167,11 +166,9 @@ const NewOnboarding: React.FC = () => {
     console.log('💾 Formatted data for SetupLoading:', formattedData);
     
     try {
-      // Save in the format SetupLoading expects
       localStorage.setItem('onboarding_data', JSON.stringify(formattedData));
       console.log('✅ Saved onboarding_data to localStorage');
       
-      // Also save individual components as backup for SetupProfile compatibility
       if (onboardingData.business) {
         localStorage.setItem('selectedBusiness', JSON.stringify(onboardingData.business));
         localStorage.setItem('onboarding_business', JSON.stringify(onboardingData.business));
@@ -188,13 +185,10 @@ const NewOnboarding: React.FC = () => {
         console.log('✅ Saved FAQ data to localStorage');
       }
       
-      // Save complete new format for backup
       localStorage.setItem('new_onboarding_data', JSON.stringify(onboardingData));
       console.log('✅ Saved complete onboarding data to localStorage');
       
       console.log('🎯 All data saved successfully, navigating to signup...');
-      
-      // Navigate to signup - user will be redirected to setup-loading after auth
       navigate('/signup');
       
     } catch (error) {
@@ -203,7 +197,6 @@ const NewOnboarding: React.FC = () => {
     }
   };
 
-  // Navigation
   const handlePrev = () => setStep(s => Math.max(1, s - 1));
 
   return (
@@ -219,8 +212,8 @@ const NewOnboarding: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">Setup Your AI Agent</h1>
-                <p className="text-sm text-slate-500 mt-0.5">Quick setup in just 4 simple steps</p>
+                <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">Setup Your AI Agent ✅ V5.0 CLEAN</h1>
+                <p className="text-sm text-slate-500 mt-0.5">Quick setup - No authentication required until signup!</p>
               </div>
             </div>
             <div className="bg-gradient-to-r from-purple-50 to-purple-100/50 px-4 py-2 rounded-full border border-purple-200/40 shadow-sm">
@@ -258,8 +251,22 @@ const NewOnboarding: React.FC = () => {
             {step === 2 && <ServicePreferenceSelect onDone={handleServicePrefDone} />}
             {step === 3 && <BusinessFAQ onDone={handleFAQDone} />}
             {step === 4 && maxStep === 5 && <ContactInfo onDone={handleContactInfoDone} />}
-            {step === 4 && maxStep === 4 && <SignupStep onDone={handleSignupDone} />}
-            {step === 5 && <SignupStep onDone={handleSignupDone} />}
+            {step === 4 && maxStep === 4 && (
+              <div>
+                <div className="mb-4 p-3 bg-blue-100 rounded-lg">
+                  <p className="text-blue-800 text-sm">DEBUG: SignupStep rendered (step 4 of 4)</p>
+                </div>
+                <SignupStep onDone={handleSignupDone} />
+              </div>
+            )}
+            {step === 5 && (
+              <div>
+                <div className="mb-4 p-3 bg-blue-100 rounded-lg">
+                  <p className="text-blue-800 text-sm">DEBUG: SignupStep rendered (step 5 of 5)</p>
+                </div>
+                <SignupStep onDone={handleSignupDone} />
+              </div>
+            )}
           </div>
         </div>
 

@@ -24,11 +24,12 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const { isSignedIn, isLoaded, user } = useUser();
 
-  // Redirect authenticated users to dashboard
+  // Temporarily disabled - allow both auth and unauth users to use landing page
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      console.log('LandingPage - Authenticated user detected, redirecting to dashboard');
-      navigate("/dashboard");
+      console.log('LandingPage - Authenticated user on landing page (not redirecting for now)');
+      // Temporarily commented out to debug onboarding flow
+      // navigate("/dashboard");
     }
   }, [isLoaded, isSignedIn, navigate]);
 
@@ -67,10 +68,16 @@ const LandingPage = () => {
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
+      console.log('📝 Form submitted with business name:', businessName);
       if (businessName.trim()) {
+        console.log('🚀 Navigating to onboarding with business name:', businessName.trim());
+        console.log('🔄 Current URL:', window.location.href);
         navigate("/new-onboarding", {
           state: { businessName: businessName.trim() },
         });
+        console.log('✅ Navigation called');
+      } else {
+        console.log('❌ Business name is empty, not navigating');
       }
     },
     [businessName, navigate]

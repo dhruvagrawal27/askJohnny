@@ -16,6 +16,13 @@ import { useUser } from "@clerk/clerk-react";
 import { fetchUserByClerkId } from "../lib/dataService";
 
 export const DashboardVoices: React.FC = () => {
+  // Debug environment variables on component load
+  useEffect(() => {
+    console.log('Environment check:');
+    console.log('VITE_VAPI_KEY present:', !!import.meta.env.VITE_VAPI_KEY);
+    console.log('VITE_VAPI_KEY length:', import.meta.env.VITE_VAPI_KEY?.length);
+  }, []);
+
   const [selectedVoice, setSelectedVoice] = useState<{provider: string, voiceId: string} | null>(null);
   const [currentVoice, setCurrentVoice] = useState<{provider: string, voiceId: string} | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,11 +75,21 @@ export const DashboardVoices: React.FC = () => {
   // Fetch current voice from VAPI API
   const fetchCurrentVoice = async (agentId: string) => {
     try {
+      const apiKey = import.meta.env.VITE_VAPI_KEY;
+      console.log('VAPI API Key available:', !!apiKey);
+      
+      if (!apiKey) {
+        throw new Error('VAPI API key not found in environment variables');
+      }
+      
       const response = await fetch(`https://api.vapi.ai/assistant/${agentId}`, {
         headers: {
-          'Authorization': 'Bearer 2ca41e10-bb46-49ea-9cb0-9aec5dd8c8c3'
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
         }
       });
+      
+      console.log('VAPI API Response status:', response.status);
       
       if (response.ok) {
         const agentDataArray = await response.json();
@@ -118,7 +135,8 @@ export const DashboardVoices: React.FC = () => {
           }
         }
       } else {
-        console.error("Failed to fetch agent data:", response.status, response.statusText);
+        const errorText = await response.text();
+        console.error("Failed to fetch agent data:", response.status, response.statusText, errorText);
         // Try to load from localStorage as fallback
         const storedVoice = localStorage.getItem('current_voice');
         if (storedVoice) {

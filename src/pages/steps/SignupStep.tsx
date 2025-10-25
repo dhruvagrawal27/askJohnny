@@ -1,18 +1,32 @@
 // components/onboarding/steps/SignupStep.tsx
 import React, { useEffect } from "react";
 import { SignUp } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 interface SignupStepProps {
   onDone: () => void;
 }
 
 const SignupStep: React.FC<SignupStepProps> = ({ onDone }) => {
+  const { isSignedIn, isLoaded } = useUser();
+  const navigate = useNavigate();
   
-  // Call onDone when component mounts to save data
+  // Handle successful authentication
   useEffect(() => {
-    console.log('📝 SignupStep mounted - calling onDone to save data...');
-    onDone();
-  }, [onDone]);
+    if (isLoaded && isSignedIn) {
+      console.log('✅ SignupStep - User authenticated, calling onDone and redirecting...');
+      
+      // Call onDone to save any remaining onboarding data
+      onDone(); 
+      
+      // Add a small delay to ensure data is saved before navigation
+      setTimeout(() => {
+        console.log('🔄 SignupStep - Navigating to setup-loading...');
+        navigate('/setup-loading');
+      }, 1000); // Increased delay to ensure data is saved
+    }
+  }, [isLoaded, isSignedIn, onDone, navigate]);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -111,7 +125,8 @@ const SignupStep: React.FC<SignupStepProps> = ({ onDone }) => {
                   showOptionalFields: true,
                 },
               }}
-              redirectUrl="/setup-loading"
+              forceRedirectUrl="/setup-loading"
+              fallbackRedirectUrl="/setup-loading"
             />
           </div>
         </div>

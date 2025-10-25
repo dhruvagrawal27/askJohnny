@@ -174,8 +174,67 @@ const SetupLoading = () => {
           console.log('📦 Using onboarding data from localStorage:', parsedData)
           onboardingData = parsedData
         } else {
-          console.error('❌ No onboarding data found in localStorage!');
-          throw new Error('Onboarding data not found. Please start the onboarding process again.');
+          // Try to reconstruct from individual pieces
+          console.log('🔧 Attempting to reconstruct onboarding data from individual pieces...');
+          
+          const business = localStorage.getItem('onboarding_business') || localStorage.getItem('selectedBusiness');
+          const servicePreference = localStorage.getItem('selectedPlan');
+          const faqData = localStorage.getItem('businessFAQ');
+          
+          if (business) {
+            console.log('🔧 Found business data, reconstructing...');
+            const businessData = JSON.parse(business);
+            
+            onboardingData = {
+              step1: {
+                businessName: businessData.name,
+                businessDetails: businessData
+              },
+              step2: {
+                voicemail: true,
+                scheduling: true,
+                faq: true
+              },
+              step3: {
+                scheduleType: 'business_hours'
+              },
+              step3b: {
+                categoryId: 'other',
+                categoryLabel: 'Other Business',
+                answers: {}
+              },
+              step4: {},
+              step5: {
+                selectedPlan: 'starter'
+              }
+            };
+            
+            // Add service preference if available
+            if (servicePreference) {
+              const parsedPlan = JSON.parse(servicePreference);
+              onboardingData.step5.selectedPlan = parsedPlan;
+              onboardingData.step2 = {
+                voicemail: parsedPlan === 'voicemail_handling' || parsedPlan === 'full_service',
+                scheduling: parsedPlan === 'appointment_scheduling' || parsedPlan === 'full_service',
+                faq: parsedPlan === 'basic_questions' || parsedPlan === 'full_service'
+              };
+            }
+            
+            // Add FAQ data if available
+            if (faqData) {
+              const parsedFAQ = JSON.parse(faqData);
+              onboardingData.step3b = {
+                categoryId: parsedFAQ.category || 'other',
+                categoryLabel: 'Other Business',
+                answers: parsedFAQ.answers || {}
+              };
+            }
+            
+            console.log('✅ Successfully reconstructed onboarding data:', onboardingData);
+          } else {
+            console.error('❌ No onboarding data found in localStorage!');
+            throw new Error('Onboarding data not found. Please start the onboarding process again.');
+          }
         }
       }
 
@@ -391,25 +450,41 @@ const SetupLoading = () => {
         const webhookData = await webhookResponse.json();
         console.log('✅ Agent training webhook response:', webhookData);
 
-        // Update user record with agent information if provided
-        if (webhookData.agent_id || webhookData.agent_name) {
-          console.log('📝 Updating user with agent information...');
-          const { error: agentUpdateError } = await supabase
-            .from('users')
-            .update({
-              agent_id: webhookData.agent_id,
-              agent_name: webhookData.agent_name,
-              agent_status: webhookData.agent_status || 'active',
-              phone_id: webhookData.phone_id,
-              phone_number: webhookData.phone_number,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', userId);
+        // Process and save the agent webhook response using the data service
+        if (webhookData && (Array.isArray(webhookData) ? webhookData.length > 0 : webhookData.id)) {
+          console.log('📝 Processing agent webhook response with data service...');
+          try {
+            // Import the processAgentWebhookResponse function
+            const { processAgentWebhookResponse } = await import('../lib/dataService');
+            
+            // Process the webhook response to update the user with agent info
+            const updatedUserData = await processAgentWebhookResponse(user.id, webhookData);
+            console.log('✅ Agent information processed and saved:', updatedUserData);
+          } catch (agentProcessError) {
+            console.error('❌ Error processing agent webhook response:', agentProcessError);
+            
+            // Fallback: Extract data manually and update directly
+            const agent = Array.isArray(webhookData) ? webhookData[0] : webhookData;
+            if (agent && agent.id) {
+              console.log('📝 Fallback: Updating user with agent information directly...');
+              const { error: agentUpdateError } = await supabase
+                .from('users')
+                .update({
+                  agent_id: agent.id,
+                  agent_name: agent.name || null,
+                  agent_status: agent.status || 'active',
+                  phone_id: agent.phoneid || agent.phone_id || null,
+                  phone_number: agent.phone_number || null,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', userId);
 
-          if (agentUpdateError) {
-            console.warn('⚠️ Could not update user with agent info:', agentUpdateError);
-          } else {
-            console.log('✅ User updated with agent information');
+              if (agentUpdateError) {
+                console.warn('⚠️ Could not update user with agent info:', agentUpdateError);
+              } else {
+                console.log('✅ User updated with agent information via fallback');
+              }
+            }
           }
         }
 

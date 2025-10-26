@@ -13,12 +13,17 @@ import {
   Phone,
   Clock,
   ListChecks,
+  PhoneCall,
+  AlertCircle,
 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getErrorMessage } from "../utils/dbHealthCheck";
 import { fetchUserByClerkId, processAgentWebhookResponse, createOrUpdateUser } from "../lib/dataService";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 
 // ------------ Local types ------------
 type TrainState = "idle" | "training" | "completed" | "error";
@@ -30,6 +35,7 @@ type UserData = {
   agent_id?: string | null;
   agent_name?: string | null;
   agent_status?: string | null;
+  phone_id?: string | null;
   assigned_phone_number?: string | null;
   clerk_id: string;
   businessDetails?: any;
@@ -168,6 +174,14 @@ const Dashboard = () => {
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [additionalDetails, setAdditionalDetails] = useState("");
+
+  // Quick Call state
+  const [showQuickCall, setShowQuickCall] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isValidNumber, setIsValidNumber] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
+  const [callResult, setCallResult] = useState<any>(null);
+  const [callError, setCallError] = useState<string | null>(null);
 
   // ================== Training flow ==================
   const startModelTraining = () => {
@@ -350,6 +364,88 @@ const Dashboard = () => {
     }
   };
 
+  // ================== Quick Call Functions ==================
+  // Phone number validation (US/Canada only)
+  const validatePhoneNumber = (number: string) => {
+    const cleaned = number.replace(/\D/g, '');
+    // US/Canada: 10-11 digits (with or without country code)
+    const isValid = cleaned.length === 10 || (cleaned.length === 11 && cleaned.startsWith('1'));
+    setIsValidNumber(isValid);
+    return isValid;
+  };
+
+  const formatPhoneNumber = (number: string) => {
+    const cleaned = number.replace(/\D/g, '');
+    if (cleaned.length >= 6) {
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `(${match[1]}) ${match[2]}-${match[3]}`;
+      }
+    }
+    return number;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.replace(/\D/g, '').length <= 10) {
+      setPhoneNumber(formatPhoneNumber(value));
+      validatePhoneNumber(value);
+      setCallError(null);
+    }
+  };
+
+  const initiateQuickCall = async () => {
+    if (!user || !isValidNumber) return;
+
+    setIsCalling(true);
+    setCallError(null);
+    setCallResult(null);
+
+    try {
+      // Get user data from Supabase - refresh if needed
+      const latestUserData = userData || await fetchUserByClerkId(user.id);
+      if (!latestUserData || !latestUserData.agent_id || !latestUserData.phone_id) {
+        throw new Error("User configuration incomplete. Please complete your setup first.");
+      }
+
+      const cleanedNumber = phoneNumber.replace(/\D/g, '');
+      const formattedNumber = cleanedNumber.length === 10 ? `+1${cleanedNumber}` : `+${cleanedNumber}`;
+
+      // Call VAPI endpoint
+      const response = await fetch('https://api.vapi.ai/call', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_VAPI_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          assistantId: latestUserData.agent_id,
+          phoneNumberId: latestUserData.phone_id,
+          customer: {
+            number: formattedNumber,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to initiate call: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setCallResult(result);
+      setPhoneNumber("");
+      setIsValidNumber(false);
+      setShowQuickCall(false);
+      
+    } catch (error) {
+      console.error('Error initiating call:', error);
+      setCallError(error instanceof Error ? error.message : 'Failed to initiate call');
+    } finally {
+      setIsCalling(false);
+    }
+  };
+
   // ================== Bootstrap ==================
   const fetchUserData = async () => {
     if (!isLoaded || !isSignedIn || !user) return;
@@ -524,6 +620,113 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Quick Call Section - only show if agent is set up */}
+        {!inSetupProcess && userData?.agent_id && userData?.phone_id && (
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50"></div>
+            <CardHeader className="relative">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                    <PhoneCall className="h-5 w-5" />
+                    Quick Call
+                  </CardTitle>
+                  <p className="text-slate-600 text-sm mt-1">
+                    Make an instant outbound call using your AI agent
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowQuickCall(!showQuickCall)}
+                  className="shrink-0"
+                >
+                  {showQuickCall ? "Cancel" : "Start Call"}
+                </Button>
+              </div>
+            </CardHeader>
+            
+            {showQuickCall && (
+              <CardContent className="relative space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="phoneNumber" className="text-sm font-medium">
+                    Phone Number (US/Canada only)
+                  </label>
+                  <div className="flex gap-3">
+                    <div className="flex-1 relative">
+                      <Input
+                        id="phoneNumber"
+                        type="tel"
+                        placeholder="(555) 123-4567"
+                        value={phoneNumber}
+                        onChange={handlePhoneChange}
+                        className={`pr-10 ${
+                          phoneNumber && !isValidNumber 
+                            ? 'border-red-300 focus:border-red-500' 
+                            : phoneNumber && isValidNumber 
+                            ? 'border-green-300 focus:border-green-500' 
+                            : ''
+                        }`}
+                      />
+                      {phoneNumber && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {isValidNumber ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 text-red-500" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      onClick={initiateQuickCall}
+                      disabled={!isValidNumber || isCalling}
+                      className="px-6"
+                    >
+                      {isCalling ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Calling...
+                        </>
+                      ) : (
+                        <>
+                          <PhoneCall className="h-4 w-4 mr-2" />
+                          Call
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  {phoneNumber && !isValidNumber && (
+                    <p className="text-xs text-red-600">
+                      Please enter a valid US or Canadian phone number
+                    </p>
+                  )}
+                </div>
+
+                {callError && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
+                    <p className="text-sm text-red-700">{callError}</p>
+                  </div>
+                )}
+              </CardContent>
+            )}
+
+            {callResult && (
+              <CardContent className="relative">
+                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-green-700">Call initiated successfully!</p>
+                    <p className="text-xs text-green-600">Call ID: {callResult.id}</p>
+                    <p className="text-xs text-green-600">Status: {callResult.status}</p>
+                  </div>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         {/* Setup Process Banner - only show if not currently training */}
         {inSetupProcess && trainingStatus === "idle" && (

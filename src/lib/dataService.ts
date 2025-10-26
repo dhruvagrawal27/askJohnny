@@ -439,6 +439,7 @@ function transformUserForFrontend(userData: any) {
     agent_id: userData.agent_id || null, // Keep as string UUID
     agent_name: userData.agent_name,
     agent_status: userData.agent_status,
+    phone_id: userData.phone_id || null, // Add phone_id for VAPI calls
     assigned_phone_number: userData.phone_number,
     clerk_id: userData.clerk_user_id,
     

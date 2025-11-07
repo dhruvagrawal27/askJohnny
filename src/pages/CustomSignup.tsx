@@ -59,7 +59,6 @@ const CustomSignup: React.FC = () => {
               }
             }}
             redirectUrl="/new-onboarding"
-            fallbackRedirectUrl="/new-onboarding"
           />
         </div>
 

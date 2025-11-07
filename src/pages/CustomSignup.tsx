@@ -58,7 +58,7 @@ const CustomSignup: React.FC = () => {
                 footerActionLink: "text-purple-600 hover:text-purple-700"
               }
             }}
-            forceRedirectUrl="/new-onboarding"
+            redirectUrl="/new-onboarding"
             fallbackRedirectUrl="/new-onboarding"
           />
         </div>

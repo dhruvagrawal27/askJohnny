@@ -5,6 +5,12 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    // Allow Clerk's arbitrary duration values
+    'duration-[var(--transition-fast)]',
+    'duration-[var(--transition-normal)]',
+    'duration-[var(--transition-slow)]',
+  ],
   theme: {
   	extend: {
   		colors: {

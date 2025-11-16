@@ -24,12 +24,11 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const { isSignedIn, isLoaded, user } = useUser();
 
-  // Temporarily disabled - allow both auth and unauth users to use landing page
+  // Redirect authenticated users to dashboard
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      console.log('LandingPage - Authenticated user on landing page (not redirecting for now)');
-      // Temporarily commented out to debug onboarding flow
-      // navigate("/dashboard");
+      console.log('LandingPage - Authenticated user detected, redirecting to dashboard');
+      navigate("/dashboard");
     }
   }, [isLoaded, isSignedIn, navigate]);
 

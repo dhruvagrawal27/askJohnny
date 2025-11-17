@@ -125,7 +125,8 @@ const SignupStep: React.FC<SignupStepProps> = ({ onDone }) => {
                   showOptionalFields: true,
                 },
               }}
-              redirectUrl="/setup-loading"
+              fallbackRedirectUrl="/setup-loading"
+              signInFallbackRedirectUrl="/dashboard"
             />
           </div>
         </div>

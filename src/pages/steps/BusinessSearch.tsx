@@ -85,16 +85,10 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
         return;
       }
 
-      if (!window.google) {
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-        script.async = true;
-        script.defer = true;
-
-        script.onload = () => {
-          console.log("Google Maps loaded successfully");
-
-          // Initialize Google Maps services
+      // Function to initialize services once Google Maps is ready
+      const initializeServices = () => {
+        if (window.google && window.google.maps && window.google.maps.places) {
+          console.log("Initializing Google Maps services...");
           autocompleteService.current =
             new window.google.maps.places.AutocompleteService();
           geocoder.current = new window.google.maps.Geocoder();
@@ -102,9 +96,58 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
           placesService.current = new window.google.maps.places.PlacesService(
             dummyDiv
           );
-
           requestUserLocation();
+        } else {
+          console.error("Google Maps API not fully loaded");
+          setLocationStatus("denied");
+        }
+      };
+
+      if (window.google && window.google.maps && window.google.maps.places) {
+        // Services already loaded
+        console.log("Google Maps already loaded");
+        initializeServices();
+      } else {
+        // Check if script is already being loaded
+        const existingScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
+        if (existingScript) {
+          console.log("Google Maps script already exists, waiting for it to load...");
+          
+          // Define global callback
+          (window as any).initGoogleMaps = () => {
+            console.log("Google Maps callback triggered");
+            initializeServices();
+          };
+          
+          // Check periodically if it's loaded
+          const checkInterval = setInterval(() => {
+            if (window.google && window.google.maps && window.google.maps.places) {
+              clearInterval(checkInterval);
+              initializeServices();
+            }
+          }, 100);
+          
+          // Timeout after 10 seconds
+          setTimeout(() => {
+            clearInterval(checkInterval);
+            if (!autocompleteService.current) {
+              console.error("Google Maps failed to load within timeout");
+              setLocationStatus("denied");
+            }
+          }, 10000);
+          return;
+        }
+        
+        // Define global callback before loading script
+        (window as any).initGoogleMaps = () => {
+          console.log("Google Maps loaded via callback");
+          initializeServices();
         };
+        
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
+        script.async = true;
+        script.defer = true;
 
         script.onerror = () => {
           console.error("Failed to load Google Maps API");
@@ -112,16 +155,6 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
         };
 
         document.head.appendChild(script);
-      } else {
-        // Services already loaded
-        autocompleteService.current =
-          new window.google.maps.places.AutocompleteService();
-        geocoder.current = new window.google.maps.Geocoder();
-        const dummyDiv = document.createElement("div");
-        placesService.current = new window.google.maps.places.PlacesService(
-          dummyDiv
-        );
-        requestUserLocation();
       }
     };
 

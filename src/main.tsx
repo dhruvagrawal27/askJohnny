@@ -15,7 +15,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ClerkProvider 
       publishableKey={CLERK_PUBLISHABLE_KEY}
       signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/new-onboarding"
+      signUpFallbackRedirectUrl="/setup-loading"
     >
       <App />
     </ClerkProvider>

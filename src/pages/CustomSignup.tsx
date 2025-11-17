@@ -17,12 +17,20 @@ const CustomSignup: React.FC = () => {
       console.log('🔍 CustomSignup - Checking for onboarding data...');
       
       // Check if user has completed onboarding
-      const hasOnboardingData = localStorage.getItem('onboarding_data') || 
-                                localStorage.getItem('new_onboarding_data');
+      const onboardingData = localStorage.getItem('onboarding_data');
+      const newOnboardingData = localStorage.getItem('new_onboarding_data');
       
-      if (hasOnboardingData) {
+      if (onboardingData || newOnboardingData) {
         console.log('✅ CustomSignup - Onboarding data found, going to setup-loading');
-        navigate('/setup-loading');
+        console.log('📦 Onboarding data:', { 
+          onboardingData: onboardingData ? JSON.parse(onboardingData) : null,
+          newOnboardingData: newOnboardingData ? JSON.parse(newOnboardingData) : null
+        });
+        
+        // Give a short delay to ensure Clerk session is fully established
+        setTimeout(() => {
+          navigate('/setup-loading');
+        }, 500);
       } else {
         console.log('⚠️ CustomSignup - No onboarding data, redirecting to onboarding');
         navigate('/new-onboarding');
@@ -58,7 +66,8 @@ const CustomSignup: React.FC = () => {
                 footerActionLink: "text-purple-600 hover:text-purple-700"
               }
             }}
-            redirectUrl="/new-onboarding"
+            fallbackRedirectUrl="/setup-loading"
+            signInFallbackRedirectUrl="/dashboard"
           />
         </div>
 

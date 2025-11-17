@@ -61,7 +61,10 @@ const Header = () => {
               </button>
             </SignInButton>
             <button 
-              onClick={() => navigate("/signup")}
+              onClick={() => {
+                console.log('🔘 Sign Up button clicked - navigating to /new-onboarding');
+                navigate("/new-onboarding");
+              }}
               className="text-emerald-600 border border-emerald-600 hover:bg-emerald-600 hover:text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200"
             >
               Sign Up

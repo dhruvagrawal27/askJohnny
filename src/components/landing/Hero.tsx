@@ -237,7 +237,10 @@ const Hero = ({ businessName, handleInputChange, handleSubmit }: HeroProps) => {
                   </button>
                 </SignInButton>
                 <button
-                  onClick={() => navigate("/signup")}
+                  onClick={() => {
+                    console.log('🔘 Sign Up button clicked in Hero - navigating to /new-onboarding');
+                    navigate("/new-onboarding");
+                  }}
                   style={{
                     padding: "0.5rem 1.25rem",
                     borderRadius: "9999px",

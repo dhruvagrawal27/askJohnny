@@ -70,6 +70,8 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
   const autocompleteService = useRef<any>(null);
   const placesService = useRef<any>(null);
   const geocoder = useRef<any>(null);
+  const [isGoogleMapsReady, setIsGoogleMapsReady] = useState(false);
+  const hasAutoSearchedRef = useRef(false);
 
   useEffect(() => {
     const initializeGoogleMaps = async () => {
@@ -96,6 +98,7 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
           placesService.current = new window.google.maps.places.PlacesService(
             dummyDiv
           );
+          setIsGoogleMapsReady(true);
           requestUserLocation();
         } else {
           console.error("Google Maps API not fully loaded");
@@ -161,12 +164,23 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
     initializeGoogleMaps();
   }, []);
 
-  // Auto-fill input if business name was passed from landing page
+  // Auto-fill input and trigger search if business name was passed from landing page
   useEffect(() => {
-    if (defaultBusinessName) {
-      handleSearch(defaultBusinessName);
+    if (defaultBusinessName && isGoogleMapsReady && !hasAutoSearchedRef.current) {
+      console.log('🔍 Auto-triggering search for:', defaultBusinessName);
+      hasAutoSearchedRef.current = true;
+
+      // Add a small delay to ensure Google Maps services are fully initialized
+      const timer = setTimeout(() => {
+        if (defaultBusinessName.length >= 2) {
+          console.log('🚀 Executing auto-search now...');
+          handleSearch(defaultBusinessName);
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
-  }, [defaultBusinessName]);
+  }, [defaultBusinessName, isGoogleMapsReady]);
 
   const requestUserLocation = () => {
     if (!navigator.geolocation) {
@@ -247,7 +261,7 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
   };
 
   const handleSearch = async (query: string) => {
-    if (!autocompleteService.current || query.length < 3) {
+    if (!autocompleteService.current || query.length < 2) {
       setSuggestions([]);
       return;
     }

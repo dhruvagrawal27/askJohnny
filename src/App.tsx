@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { OnboardingProvider } from "./context/OnboardingContext";
-import LandingPage from "./pages/LandingPage";
+import NewLandingPage from "./pages/newLandingPage";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SetupLoading from "./pages/SetupLoading";
@@ -151,7 +151,7 @@ function App() {
               path="/"
               element={
                 <PublicRoute>
-                  <LandingPage />
+                  <NewLandingPage />
                 </PublicRoute>
               }
             />

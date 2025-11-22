@@ -27,7 +27,6 @@ const LandingPage = () => {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      console.log('LandingPage - Authenticated user detected, redirecting to dashboard');
       navigate("/dashboard");
     }
   }, [isLoaded, isSignedIn, navigate]);

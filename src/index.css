@@ -1,10 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Google Sans Flex', system-ui, sans-serif;
   }
   
   body {
@@ -146,3 +148,137 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.text-gradient {
+        /* Metallic purplish gradient with shimmer effect */
+        background: linear-gradient(155deg, #4A148C 0%, #7B1FA2 45%, #641472 70%, #9748a5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      /* Custom Button Styles per Design Specs */
+      .btn-primary-custom {
+        border-radius: 0.625rem;
+        background: radial-gradient(156.98% 105% at 50% 25%, #A47CF3 0%, #5F488D 100%);
+        box-shadow: 0px -1px 8px 0px rgba(0, 0, 0, 0.15) inset;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      
+      .btn-secondary-custom {
+        border-radius: 0.625rem;
+        border: 0.5px solid rgba(0, 0, 0, 0.20);
+        background: radial-gradient(131.41% 73% at 50.45% 9%, #FFF 0%, #FBFAFA 99.98%);
+        box-shadow: 0px -0.5px 8px 0px rgba(0, 0, 0, 0.05) inset;
+        color: #374151;
+        cursor: pointer;
+      }
+
+      /* Enhanced Hero Background - Strong Radial Gradient */
+      .hero-bg-custom {
+        background: radial-gradient(125% 125% at 50% 10%, #FFFFFF 35%, #C4B5FD 75%, #7C3AED 100%);
+      }
+
+      /* Dashboard Preview Style */
+      .dashboard-preview-bg {
+        border-radius: 2.1875rem;
+        background: linear-gradient(114deg, #E8E7F7 4.53%, #BD9DFF 31.43%, #B691FF 54.74%, #B7B4D5 77.06%, #FFF 101.24%);
+        box-shadow: 4px 4px 10px 0px #7C799E;
+        filter: blur(1px);
+      }
+
+      /* Industry Card Styles */
+      .industry-card-1 {
+        background: linear-gradient(132deg, #F4F3FE 14.34%, #D6CEFF 98.07%);
+      }
+      
+      .industry-card-2 {
+        background: linear-gradient(50deg, #DCB7FF -1.52%, #FAEFFC 65.13%, #F2E0FF 105.48%);
+      }
+
+      /* Deep Purple Background for Demo Section */
+      .demo-purple-bg {
+        background: linear-gradient(180deg, #362951 0%, #241a38 100%);
+      }
+
+      /* Benefit Cards Styles */
+      .benefit-card-primary {
+        border-radius: 1.25rem;
+        background: linear-gradient(141deg, #CAB8FF 10.07%, #484470 98.58%);
+      }
+      
+      /* Secondary Card: Outer container with white fill and border */
+      .benefit-card-secondary {
+        background-color: #FFFFFF;
+        border: 1px solid #E7EAF1;
+        border-radius: 1.25rem;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      /* Secondary Card: Inner blurred gradient layer */
+      .benefit-card-secondary::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        bottom: 2px;
+        left: 2px;
+        right: 2px;
+        border-radius: 1rem;
+        background: linear-gradient(128deg, #F8F5FC 16.47%, #F4EEFA 60.05%, #EEE8F5 72.08%);
+        filter: blur(5px);
+        z-index: 0;
+      }
+
+      /* Animations */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translate3d(0, -30px, 0);
+        }
+        to {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translate3d(0, 30px, 0);
+        }
+        to {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+      
+      @keyframes zoomIn {
+        from {
+          opacity: 0;
+          transform: scale3d(0.95, 0.95, 0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale3d(1, 1, 1);
+        }
+      }
+
+      .animate-fade-in-down {
+        animation: fadeInDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+      
+      .animate-fade-in-up {
+        animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+      
+      .animate-zoom-in {
+        animation: zoomIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+
+      .animation-delay-200 { animation-delay: 0.2s; }
+      .animation-delay-400 { animation-delay: 0.4s; }
+      .animation-delay-600 { animation-delay: 0.6s; }

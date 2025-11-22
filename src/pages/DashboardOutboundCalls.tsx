@@ -314,7 +314,7 @@ export const DashboardOutbound: React.FC = () => {
       if (user) formData.append("clerkUserId", user.id);
 
       // Create webhook URL with proper parameters - restored original n8n URL
-      const webhookUrl = `https://dhruvthc.app.n8n.cloud/webhook/outbound?clerkId=${user?.id}&campaignname=${encodeURIComponent(campaignName)}`;
+      const webhookUrl = `https://glowing-g79w8.crab.containers.automata.host/webhook/outbound?clerkId=${user?.id}&campaignname=${encodeURIComponent(campaignName)}`;
       
       console.log('=== CALLING WEBHOOK ===');
       console.log('URL:', webhookUrl);

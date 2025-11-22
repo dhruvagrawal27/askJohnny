@@ -254,10 +254,10 @@ export const DashboardKnowledgeBase: React.FC = () => {
       });
 
       console.log("FormData created with all files, making batch request to N8N webhook...");
-      console.log("Webhook URL:", 'https://dhruvthc.app.n8n.cloud/webhook/fileupload');
+      console.log("Webhook URL:", 'https://glowing-g79w8.crab.containers.automata.host/webhook/fileupload');
       console.log("Files being uploaded:", fileRecords.map(fr => fr.stagedFile.name));
 
-      const response = await fetch('https://dhruvthc.app.n8n.cloud/webhook/fileupload', {
+      const response = await fetch('https://glowing-g79w8.crab.containers.automata.host/webhook/fileupload', {
         method: 'POST',
         body: formData,
       });
@@ -380,9 +380,9 @@ export const DashboardKnowledgeBase: React.FC = () => {
       formData.append('fileId', fileId);
 
       console.log("FormData created, making request to N8N webhook...");
-      console.log("Webhook URL:", 'https://dhruvthc.app.n8n.cloud/webhook/fileupload');
+      console.log("Webhook URL:", 'https://glowing-g79w8.crab.containers.automata.host/webhook/fileupload');
 
-      const response = await fetch('https://dhruvthc.app.n8n.cloud/webhook/fileupload', {
+      const response = await fetch('https://glowing-g79w8.crab.containers.automata.host/webhook/fileupload', {
         method: 'POST',
         body: formData,
       });

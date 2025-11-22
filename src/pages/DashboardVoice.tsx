@@ -489,7 +489,7 @@ export const DashboardVoices: React.FC = () => {
 
     setIsSaving(true);
     try {
-      const response = await fetch("https://dhruvthc.app.n8n.cloud/webhook/voice-change", {
+      const response = await fetch("https://glowing-g79w8.crab.containers.automata.host/webhook/voice-change", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

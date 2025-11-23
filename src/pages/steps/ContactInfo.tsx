@@ -4,6 +4,7 @@ import { Phone, Mail, ArrowLeft } from 'lucide-react';
 
 interface ContactInfoProps {
   onDone: (contactData: any) => void;
+  onBack?: () => void;
 }
 
 const ContactInfo: React.FC<ContactInfoProps> = ({ onDone }) => {

@@ -7,6 +7,7 @@ import { Shield, Star, Clock, CheckCircle } from 'lucide-react';
 
 interface SignupStepProps {
   onDone: () => void;
+  onBack?: () => void;
 }
 
 const SignupStep: React.FC<SignupStepProps> = ({ onDone }) => {
@@ -101,8 +102,8 @@ const SignupStep: React.FC<SignupStepProps> = ({ onDone }) => {
                   showOptionalFields: true,
                 },
               }}
-              fallbackRedirectUrl="/setup-loading"
-              signInFallbackRedirectUrl="/dashboard"
+              redirectUrl="/setup-loading"
+              signInUrl="/sign-in"
               />
             </div>
 

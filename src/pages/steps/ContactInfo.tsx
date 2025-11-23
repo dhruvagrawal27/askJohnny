@@ -1,8 +1,10 @@
 // components/onboarding/steps/ContactInfo.tsx
 import React, { useState } from "react";
+import { Phone, Mail, ArrowLeft } from 'lucide-react';
 
 interface ContactInfoProps {
   onDone: (contactData: any) => void;
+  onBack?: () => void;
 }
 
 const ContactInfo: React.FC<ContactInfoProps> = ({ onDone }) => {
@@ -33,109 +35,63 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ onDone }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Header Section */}
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#2D1B69] to-[#695FDA] mb-6">
-          <svg
-            className="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-            />
-          </svg>
+    <div className="w-full h-full flex flex-col px-6 md:px-8 lg:px-10 py-4">
+      {/* Step Header */}
+      <div className="mb-3 w-full flex justify-between items-start gap-4 shrink-0">
+        <div className="text-left flex-1 min-w-0">
+          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-[9px] font-bold uppercase tracking-wide mb-2">
+            Step 04
+          </div>
+          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1.5">Contact Information</h2>
+          <p className="text-sm text-gray-500 leading-relaxed max-w-2xl">Provide your business contact details for agent setup.</p>
         </div>
-        <h2 className="text-3xl font-bold text-slate-800 mb-4">
-          Business Contact Information
-        </h2>
-        <p className="text-lg text-slate-600 max-w-md mx-auto">
-          We need your business phone number to set up your AI agent for call handling.
-        </p>
       </div>
 
-      {/* Form */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-lg shadow-slate-200/50 overflow-hidden">
-        <div className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="flex-1 flex flex-col min-h-0 justify-center">
+        <div className="max-w-md mx-auto w-full">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Phone Number */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-2">
-                Business Phone Number *
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D1B69] focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400"
-                placeholder="+1 (555) 123-4567"
-                required
-              />
-              <p className="mt-2 text-sm text-slate-500">
-                This number will be used for your AI agent training and call routing.
-              </p>
+              <label className="block text-[10px] font-bold text-gray-700 mb-1.5 ml-1">Business Phone Number *</label>
+              <div className="relative group">
+                <Phone className="absolute left-3 top-3 text-gray-400 group-focus-within:text-brand-500 transition-colors" size={16} />
+                <input
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all text-sm font-medium text-gray-800 placeholder:text-gray-400"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1.5 ml-1">Used for AI agent training and call routing</p>
             </div>
 
             {/* Email (Optional) */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
-                Business Email (Optional)
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D1B69] focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400"
-                placeholder="business@example.com"
-              />
+              <label className="block text-[10px] font-bold text-gray-700 mb-1.5 ml-1">Business Email (Optional)</label>
+              <div className="relative group">
+                <Mail className="absolute left-3 top-3 text-gray-400 group-focus-within:text-brand-500 transition-colors" size={16} />
+                <input
+                  type="email"
+                  placeholder="business@example.com"
+                  className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all text-sm font-medium text-gray-800 placeholder:text-gray-400"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-4">
+            <div className="pt-2">
               <button
                 type="submit"
+                className="w-full btn-primary-custom py-3.5 font-bold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 rounded-xl"
                 disabled={isSubmitting || !phone.trim()}
-                className="w-full bg-gradient-to-r from-[#2D1B69] to-[#695FDA] text-white py-4 px-6 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#2D1B69]/25 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none transition-all duration-200 text-base"
               >
-                {isSubmitting ? "Saving..." : "Continue to Signup"}
+                {isSubmitting ? "Saving..." : "Continue to Signup"} <ArrowLeft size={14} className="rotate-180" />
               </button>
             </div>
           </form>
-        </div>
-      </div>
-
-      {/* Info Section */}
-      <div className="mt-8">
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-xl border border-slate-200/60 p-6">
-          <div className="flex items-start">
-            <div className="flex-shrink-0 mt-1">
-              <svg
-                className="w-5 h-5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm text-slate-700 leading-relaxed">
-                <span className="font-medium">Why do we need this?</span> Your business phone number is essential for setting up call forwarding and training your AI agent to handle calls professionally for your specific business.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

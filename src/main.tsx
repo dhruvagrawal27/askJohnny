@@ -12,10 +12,8 @@ if (!CLERK_PUBLISHABLE_KEY) {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ClerkProvider 
+    <ClerkProvider
       publishableKey={CLERK_PUBLISHABLE_KEY}
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/setup-loading"
     >
       <App />
     </ClerkProvider>

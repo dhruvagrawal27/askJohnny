@@ -173,7 +173,8 @@ export const deleteCalendarIntegration = async (id: string): Promise<void> => {
 // Google Calendar OAuth Helper Functions
 export const generateGoogleAuthUrl = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
+  // Use current origin to build redirect URI dynamically
+  const redirectUri = `${window.location.origin}/dashboard/integrations`;
   
   const scopes = [
     'https://www.googleapis.com/auth/calendar',
@@ -198,7 +199,8 @@ export const exchangeCodeForTokens = async (code: string) => {
   try {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
+    // Use current origin to build redirect URI dynamically
+    const redirectUri = `${window.location.origin}/dashboard/integrations`;
 
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',

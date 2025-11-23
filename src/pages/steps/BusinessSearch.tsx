@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { BusinessData } from "../../types/onboarding";
+import { Search, Loader2, Store, MapPin, Star, Phone, Clock, Map, Layout, ArrowLeft, Check } from 'lucide-react';
 
 interface BusinessInfo {
   name: string;
@@ -38,6 +39,7 @@ interface UserLocation {
 
 interface BusinessSearchProps {
   onDone: (business: BusinessData) => void;
+  onBack?: () => void;
 }
 
 declare global {
@@ -46,7 +48,7 @@ declare global {
   }
 }
 
-const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
+const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone, onBack }) => {
   const location = useLocation();
   const { businessName: defaultBusinessName } =
     (location.state as { businessName?: string }) || {};
@@ -433,7 +435,7 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
   const selectBusiness = (business: BusinessInfo) => {
     setSelectedBusiness(business);
     setSearchValue(business.name);
-    setSuggestions([]);
+    // Keep suggestions visible after selection
   };
 
   const handleContinue = () => {
@@ -471,328 +473,304 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-slate-800 mb-6 text-center">
-        Find Your Business
-      </h2>
-
-      <p className="text-slate-600 mb-6 text-center">
-        Search for your business using Google Places to get accurate
-        information.
-      </p>
-
-      {/* Location Status Cards */}
-      {locationStatus === "requesting" && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-xl p-4 shadow-sm mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
-            </div>
-            <div>
-              <p className="text-blue-700 font-medium">
-                Requesting your location...
-              </p>
-              <p className="text-blue-600 text-sm">
-                This helps us find businesses near you
-              </p>
-            </div>
+    <div className="w-full h-screen flex flex-col px-6 md:px-8 lg:px-10 py-4 overflow-hidden">
+      {/* Step Header with inline Location Status */}
+      <div className="mb-3 w-full flex justify-between items-start gap-4 shrink-0">
+        <div className="text-left flex-1 min-w-0">
+          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-[9px] font-bold uppercase tracking-wide mb-2">
+            Step 01
           </div>
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">Find Your Business</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">Search for your business to automatically import details.</p>
         </div>
-      )}
 
-      {locationStatus === "denied" && showLocationPrompt && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-4 shadow-sm mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-4 h-4 text-amber-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+        {/* Right side: Location Status & Back Button */}
+        <div className="flex-shrink-0 flex items-start gap-2">
+          {locationStatus === "requesting" && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-lg px-3 py-2 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+                <div>
+                  <p className="text-blue-700 font-medium text-xs">Requesting location...</p>
+                </div>
               </div>
-              <div>
-                <p className="text-amber-700 font-medium">
-                  Enable location for better results
-                </p>
-                <p className="text-amber-600 text-sm">
-                  We'll show businesses near you first
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={requestUserLocation}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-            >
-              Allow Location
-            </button>
-          </div>
-        </div>
-      )}
-
-      {locationStatus === "granted" && userLocation && (
-        <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200/60 rounded-xl p-4 shadow-sm mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-emerald-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <div>
-              <p className="text-emerald-700 font-medium">Location detected</p>
-              <p className="text-emerald-600 text-sm">
-                Searching near {userLocation.city || "your location"}
-                {userLocation.country && `, ${userLocation.country}`}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Search Input */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Business Name or Address
-        </label>
-        <div className="relative">
-          <svg
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            value={searchValue}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            placeholder={
-              locationStatus === "granted"
-                ? `Search for businesses near ${userLocation?.city || "you"}...`
-                : "Start typing your business name..."
-            }
-            className="w-full pl-12 pr-12 py-4 border border-slate-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm hover:shadow-md"
-            disabled={locationStatus === "requesting"}
-          />
-          {isLoading && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-purple-500 border-t-transparent"></div>
             </div>
           )}
+
+          {locationStatus === "denied" && showLocationPrompt && (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-lg px-3 py-2 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-amber-100 rounded flex items-center justify-center flex-shrink-0">
+                  <MapPin size={12} className="text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-amber-700 font-medium text-xs">Enable location</p>
+                </div>
+                <button
+                  onClick={requestUserLocation}
+                  className="px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded text-[10px] font-medium transition-all"
+                >
+                  Allow
+                </button>
+              </div>
+            </div>
+          )}
+
+          {locationStatus === "granted" && userLocation && (
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200/60 rounded-lg px-3 py-2 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-emerald-100 rounded flex items-center justify-center flex-shrink-0">
+                  <Check size={12} className="text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-emerald-700 font-medium text-xs">
+                    {userLocation.city || "Location detected"}
+                    {userLocation.country && `, ${userLocation.country}`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Back Button */}
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
+              title="Go back"
+            >
+              <ArrowLeft size={18} className="text-gray-600" />
+            </button>
+          )}
         </div>
-        <p className="text-sm text-slate-500 mt-2">
-          Select your business from the dropdown suggestions
-        </p>
       </div>
 
-      {/* Search Results */}
-      {suggestions.length > 0 && (
-        <div className="mb-6 space-y-3">
-          <h3 className="text-sm font-semibold text-slate-700 flex items-center">
-            <svg
-              className="w-4 h-4 mr-2 text-purple-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-            Search Results
-          </h3>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {suggestions.map((business) => (
-              <button
-                key={business.placeId}
-                onClick={() => selectBusiness(business)}
-                className="w-full text-left p-4 bg-white border border-purple-100/60 rounded-xl hover:border-purple-300/70 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-white transition-all duration-200 shadow-sm hover:shadow-lg group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="font-semibold text-slate-800 group-hover:text-purple-700 transition-colors duration-200 mb-1">
-                      {business.name}
-                    </div>
-                    <div className="text-sm text-slate-600 flex items-center mb-2">
-                      <svg
-                        className="h-3.5 w-3.5 mr-1.5 text-slate-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      {business.address}
-                    </div>
+      {/* Split View: Search & Preview */}
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+        {/* Left Col: Search & Results - 40% width */}
+        <div className="flex-none lg:w-[40%] flex flex-col min-h-0">
+          <div className="relative mb-2 group flex-shrink-0">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              {isLoading ? <Loader2 className="animate-spin text-brand-600" size={16}/> : <Search className="text-gray-400" size={16}/>}
+            </div>
+            <input
+              type="text"
+              value={searchValue}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              placeholder={
+                locationStatus === "granted"
+                  ? `Search businesses near ${userLocation?.city || "you"}...`
+                  : "e.g. Downtown Dental Care"
+              }
+              className="w-full pl-9 pr-3 py-2.5 bg-white border-2 border-gray-100 rounded-xl text-sm focus:ring-4 focus:ring-brand-100 focus:border-brand-500 outline-none shadow-sm transition-all placeholder:text-gray-300"
+              autoFocus
+              disabled={locationStatus === "requesting"}
+            />
+          </div>
 
-                    <div className="flex items-center space-x-4">
+          {/* Results List */}
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-1.5">
+            {suggestions.length > 0 ? (
+              suggestions.map((business) => (
+                <div
+                  key={business.placeId}
+                  onClick={() => selectBusiness(business)}
+                  className={`p-2.5 rounded-lg cursor-pointer transition-all border flex items-center gap-2.5 group ${
+                    selectedBusiness?.placeId === business.placeId
+                    ? 'bg-brand-50 border-brand-500 shadow-sm'
+                    : 'bg-white border-gray-50 hover:border-brand-200 hover:shadow-sm'
+                  }`}
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+                    selectedBusiness?.placeId === business.placeId ? 'bg-brand-500 text-white' : 'bg-brand-100 text-brand-600'
+                  }`}>
+                    <Store size={14} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-gray-900 text-xs truncate">{business.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5 truncate">{business.address}</div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
                       {business.rating && (
-                        <div className="flex items-center space-x-1">
-                          <svg
-                            className="h-4 w-4 text-amber-400 fill-current"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                          <span className="text-sm font-medium text-slate-700">
-                            {business.rating.toFixed(1)}
-                          </span>
+                        <div className="flex items-center text-[9px] font-bold text-orange-500 bg-orange-50 px-1 py-0.5 rounded">
+                          <Star size={7} className="fill-orange-500 mr-0.5" /> {business.rating.toFixed(1)}
                         </div>
                       )}
+                      {business.types?.[0] && (
+                        <div className="text-[9px] text-gray-400 font-medium truncate">• {business.types[0].replace(/_/g, ' ')}</div>
+                      )}
+                    </div>
+                  </div>
+                  {selectedBusiness?.placeId === business.placeId && (
+                    <div className="w-4 h-4 rounded-full bg-brand-500 flex items-center justify-center text-white animate-zoom-in flex-shrink-0">
+                      <Check size={10} strokeWidth={3} />
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              searchValue.length > 0 && !isLoading && (
+                <div className="text-center py-6 text-gray-400">
+                  <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Search size={16} />
+                  </div>
+                  <p className="text-[10px]">No results found.</p>
+                </div>
+              )
+            )}
+          </div>
+        </div>
 
-                      {business.isOpen !== undefined && (
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                            business.isOpen
-                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200/60"
-                              : "bg-red-100 text-red-700 border border-red-200/60"
-                          }`}
-                        >
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                              business.isOpen ? "bg-emerald-500" : "bg-red-500"
-                            }`}
-                          ></div>
-                          {business.isOpen ? "Open now" : "Closed"}
+        {/* Right Col: Details Card (Preview) - 60% width */}
+        <div className="flex-none lg:w-[60%] flex flex-col min-h-0">
+          <div className="h-full bg-white rounded-2xl border border-gray-200 shadow-xl shadow-brand-900/5 overflow-hidden flex flex-col">
+            {selectedBusiness ? (
+              <div className="flex flex-col h-full animate-fade-in-up">
+                {/* Map Placeholder */}
+                <div className="h-20 bg-gray-100 relative w-full overflow-hidden flex-shrink-0">
+                  <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                    <Map size={20} className="text-gray-300" />
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                    <div className="flex items-center gap-1 text-white text-[9px] font-medium">
+                      <MapPin size={9} className="fill-white flex-shrink-0" />
+                      <span className="truncate">{selectedBusiness.address}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scrollable Content */}
+                <div className="p-4 flex-1 flex flex-col overflow-y-auto">
+                  <div className="mb-3">
+                    <h3 className="text-base font-bold text-gray-900 mb-1 leading-tight">{selectedBusiness.name}</h3>
+                    <div className="flex items-center gap-2 flex-wrap mt-1">
+                      {selectedBusiness.types?.[0] && (
+                        <span className="bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-bold text-[9px] capitalize">
+                          {selectedBusiness.types[0].replace(/_/g, ' ')}
+                        </span>
+                      )}
+                      {selectedBusiness.rating && (
+                        <span className="flex items-center gap-1 text-orange-500 font-bold text-[9px]">
+                          <Star size={8} className="fill-orange-500" />
+                          {selectedBusiness.rating.toFixed(1)}
+                          {selectedBusiness.userRatingsTotal && ` (${selectedBusiness.userRatingsTotal})`}
+                        </span>
+                      )}
+                      {selectedBusiness.priceLevel && (
+                        <span className="text-[9px] text-gray-600 font-medium">
+                          {'$'.repeat(selectedBusiness.priceLevel)}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <svg
-                      className="w-5 h-5 text-purple-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                  {/* Business Description */}
+                  {selectedBusiness.businessDescription && (
+                    <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-100">
+                      <p className="text-[10px] text-gray-700 leading-relaxed">{selectedBusiness.businessDescription}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 mb-3">
+                    {selectedBusiness.phone && (
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-gray-500 shadow-sm shrink-0">
+                          <Phone size={11} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">Phone</div>
+                          <div className="font-medium text-gray-900 text-[10px] truncate">{selectedBusiness.phone}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBusiness.website && (
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-gray-500 shadow-sm shrink-0">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">Website</div>
+                          <a href={selectedBusiness.website} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 text-[10px] truncate hover:underline block">
+                            {selectedBusiness.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBusiness.isOpen !== undefined && (
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-gray-500 shadow-sm shrink-0">
+                          <Clock size={11} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">Status</div>
+                          <div className={`font-medium text-[10px] truncate ${selectedBusiness.isOpen ? 'text-green-600' : 'text-red-600'}`}>
+                            {selectedBusiness.isOpen ? 'Open now' : 'Closed'}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Opening Hours Details */}
+                  {selectedBusiness.openingHours?.weekday_text && selectedBusiness.openingHours.weekday_text.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-1.5">Opening Hours</div>
+                      <div className="space-y-0.5 bg-gray-50 rounded-lg p-2 border border-gray-100">
+                        {selectedBusiness.openingHours.weekday_text.slice(0, 7).map((day, idx) => (
+                          <div key={idx} className="text-[9px] text-gray-700 leading-relaxed">
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reviews Summary */}
+                  {selectedBusiness.reviews && selectedBusiness.reviews.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-1.5">Recent Reviews</div>
+                      <div className="space-y-1.5">
+                        {selectedBusiness.reviews.slice(0, 2).map((review: any, idx: number) => (
+                          <div key={idx} className="p-2 bg-gray-50 rounded-lg border border-gray-100">
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <div className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} size={7} className={i < review.rating ? 'fill-orange-500 text-orange-500' : 'text-gray-300'} />
+                                ))}
+                              </div>
+                              <span className="text-[8px] text-gray-500 ml-1">{review.author_name}</span>
+                            </div>
+                            <p className="text-[9px] text-gray-600 leading-relaxed line-clamp-2">{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Selected Business */}
-      {selectedBusiness && (
-        <div className="mb-6 p-4 border border-green-200 rounded-lg bg-green-50">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="font-semibold text-green-800 mb-1">
-                ✓ Selected Business:
-              </div>
-              <div className="text-green-700 font-medium">
-                {selectedBusiness.name}
-              </div>
-              <div className="text-sm text-green-600">
-                {selectedBusiness.address}
-              </div>
-              {selectedBusiness.phone && (
-                <div className="text-sm text-green-600">
-                  {selectedBusiness.phone}
+                {/* Fixed Continue Button */}
+                <div className="p-4 pt-2 border-t border-gray-100 flex-shrink-0">
+                  <button
+                    onClick={handleContinue}
+                    className="w-full btn-primary-custom py-2.5 font-bold text-xs rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                  >
+                    Confirm & Continue <ArrowLeft size={12} className="rotate-180" />
+                  </button>
                 </div>
-              )}
-              <div className="text-xs text-green-500 mt-1">
-                Place ID: {selectedBusiness.placeId}
               </div>
-            </div>
-            <button
-              className="ml-4 text-sm text-purple-600 underline hover:text-purple-700"
-              onClick={() => setSelectedBusiness(null)}
-            >
-              Change
-            </button>
-          </div>
-        </div>
-      )}
-
-      <button
-        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-        disabled={!selectedBusiness}
-        onClick={handleContinue}
-      >
-        {selectedBusiness
-          ? "Continue with This Business"
-          : "Please Select Your Business"}
-      </button>
-
-      {/* Info box */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start">
-          <svg
-            className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div>
-            <p className="text-sm text-blue-800 font-medium">
-              Why do we need this?
-            </p>
-            <p className="text-sm text-blue-700 mt-1">
-              We use your business information to provide accurate details to
-              callers and integrate with your existing online presence.
-            </p>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full p-6 text-center bg-gray-50/50">
+                <div className="w-12 h-12 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center mb-2.5">
+                  <Layout size={20} className="text-gray-300" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-900 mb-1">Business Details</h3>
+                <p className="text-[10px] text-gray-500 max-w-[180px]">Select a business from the search results to preview details here.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -801,760 +779,3 @@ const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
 };
 
 export default BusinessSearch;
-
-// // components/onboarding/steps/BusinessSearch.tsx
-// import React, { useEffect, useRef, useState } from "react";
-// import { useLocation } from "react-router-dom";
-// import { BusinessData } from "../../types/onboarding";
-
-// interface BusinessInfo {
-//   name: string;
-//   address: string;
-//   rating?: number;
-//   phone?: string;
-//   website?: string;
-//   placeId: string;
-//   types?: string[];
-//   reviews?: any[];
-//   businessDescription?: string;
-//   openingHours?: {
-//     periods?: Array<{
-//       open: { day: number; time: string };
-//       close?: { day: number; time: string };
-//     }>;
-//     weekday_text?: string[];
-//   };
-//   isOpen?: boolean;
-//   priceLevel?: number;
-//   photos?: any[];
-//   vicinity?: string;
-//   userRatingsTotal?: number;
-//   utcOffsetMinutes?: number;
-//   location?: { lat: number; lng: number };
-// }
-
-// interface UserLocation {
-//   lat: number;
-//   lng: number;
-//   country?: string;
-//   city?: string;
-// }
-
-// interface BusinessSearchProps {
-//   onDone: (business: BusinessData) => void;
-// }
-
-// declare global {
-//   interface Window {
-//     google: any;
-//   }
-// }
-
-// const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone }) => {
-//   const location = useLocation();
-//   const { businessName: defaultBusinessName } =
-//     (location.state as { businessName?: string }) || {};
-
-//   // State for business search
-//   const [searchValue, setSearchValue] = useState(defaultBusinessName || "");
-//   const [suggestions, setSuggestions] = useState<BusinessInfo[]>([]);
-//   const [selectedBusiness, setSelectedBusiness] = useState<BusinessInfo | null>(
-//     null
-//   );
-//   const [isLoading, setIsLoading] = useState(false);
-
-//   // State for location
-//   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
-//   const [locationStatus, setLocationStatus] = useState<
-//     "requesting" | "granted" | "denied"
-//   >("requesting");
-//   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
-
-//   // Refs for Google Maps services
-//   const autocompleteService = useRef<any>(null);
-//   const placesService = useRef<any>(null);
-//   const geocoder = useRef<any>(null);
-
-//   useEffect(() => {
-//     const initializeGoogleMaps = async () => {
-//       // Get API key with proper TypeScript handling
-//       const apiKey =
-//         ((import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY as string) || "";
-
-//       if (!apiKey) {
-//         console.warn(
-//           "Google Maps API key not found. Location features disabled."
-//         );
-//         setLocationStatus("denied");
-//         return;
-//       }
-
-//       if (!window.google) {
-//         const script = document.createElement("script");
-//         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-//         script.async = true;
-//         script.defer = true;
-
-//         script.onload = () => {
-//           console.log("Google Maps loaded successfully");
-
-//           // Initialize Google Maps services
-//           autocompleteService.current =
-//             new window.google.maps.places.AutocompleteService();
-//           geocoder.current = new window.google.maps.Geocoder();
-//           const dummyDiv = document.createElement("div");
-//           placesService.current = new window.google.maps.places.PlacesService(
-//             dummyDiv
-//           );
-
-//           requestUserLocation();
-//         };
-
-//         script.onerror = () => {
-//           console.error("Failed to load Google Maps API");
-//           setLocationStatus("denied");
-//         };
-
-//         document.head.appendChild(script);
-//       } else {
-//         // Services already loaded
-//         autocompleteService.current =
-//           new window.google.maps.places.AutocompleteService();
-//         geocoder.current = new window.google.maps.Geocoder();
-//         const dummyDiv = document.createElement("div");
-//         placesService.current = new window.google.maps.places.PlacesService(
-//           dummyDiv
-//         );
-//         requestUserLocation();
-//       }
-//     };
-
-//     initializeGoogleMaps();
-//   }, []);
-
-//   // Auto-fill input if business name was passed from landing page
-//   useEffect(() => {
-//     if (defaultBusinessName) {
-//       handleSearch(defaultBusinessName);
-//     }
-//   }, [defaultBusinessName]);
-
-//   const requestUserLocation = () => {
-//     if (!navigator.geolocation) {
-//       console.error("Geolocation is not supported by this browser.");
-//       setLocationStatus("denied");
-//       return;
-//     }
-
-//     navigator.geolocation.getCurrentPosition(
-//       async (position) => {
-//         const lat = position.coords.latitude;
-//         const lng = position.coords.longitude;
-
-//         try {
-//           const locationDetails = await reverseGeocode(lat, lng);
-//           setUserLocation({
-//             lat,
-//             lng,
-//             country: locationDetails.country,
-//             city: locationDetails.city,
-//           });
-//           setLocationStatus("granted");
-//         } catch (error) {
-//           console.error("Error getting location details:", error);
-//           setUserLocation({ lat, lng });
-//           setLocationStatus("granted");
-//         }
-//       },
-//       (error) => {
-//         console.error("Error getting user location:", error);
-//         setLocationStatus("denied");
-//       },
-//       {
-//         enableHighAccuracy: true,
-//         timeout: 10000,
-//         maximumAge: 300000,
-//       }
-//     );
-//   };
-
-//   const reverseGeocode = async (
-//     lat: number,
-//     lng: number
-//   ): Promise<{ country?: string; city?: string }> => {
-//     return new Promise((resolve) => {
-//       if (!geocoder.current) {
-//         resolve({});
-//         return;
-//       }
-
-//       geocoder.current.geocode(
-//         { location: { lat, lng } },
-//         (results: any, status: string) => {
-//           if (status === "OK" && results && results[0]) {
-//             const addressComponents = results[0].address_components;
-//             let country = "";
-//             let city = "";
-
-//             addressComponents.forEach((component: any) => {
-//               if (component.types.includes("country")) {
-//                 country = component.short_name;
-//               }
-//               if (
-//                 component.types.includes("locality") ||
-//                 component.types.includes("administrative_area_level_1")
-//               ) {
-//                 city = component.long_name;
-//               }
-//             });
-
-//             resolve({ country, city });
-//           } else {
-//             resolve({});
-//           }
-//         }
-//       );
-//     });
-//   };
-
-//   const handleSearch = async (query: string) => {
-//     if (!autocompleteService.current || query.length < 3) {
-//       setSuggestions([]);
-//       return;
-//     }
-
-//     setIsLoading(true);
-
-//     try {
-//       const request: any = {
-//         input: query,
-//         types: ["establishment"],
-//       };
-
-//       if (userLocation) {
-//         request.location = new window.google.maps.LatLng(
-//           userLocation.lat,
-//           userLocation.lng
-//         );
-//         request.radius = 50000;
-
-//         if (userLocation.country) {
-//           request.componentRestrictions = {
-//             country: userLocation.country.toLowerCase(),
-//           };
-//         }
-//       }
-
-//       autocompleteService.current.getPlacePredictions(
-//         request,
-//         (predictions: any, status: string) => {
-//           if (
-//             status === window.google.maps.places.PlacesServiceStatus.OK &&
-//             predictions
-//           ) {
-//             const businessPromises = predictions
-//               .slice(0, 5)
-//               .map((prediction: any) => {
-//                 return new Promise<BusinessInfo>((resolve) => {
-//                   if (!placesService.current) {
-//                     resolve({
-//                       name: prediction.description,
-//                       address:
-//                         prediction.structured_formatting.secondary_text || "",
-//                       placeId: prediction.place_id,
-//                     });
-//                     return;
-//                   }
-
-//                   placesService.current.getDetails(
-//                     {
-//                       placeId: prediction.place_id,
-//                       fields: [
-//                         "name",
-//                         "formatted_address",
-//                         "rating",
-//                         "formatted_phone_number",
-//                         "website",
-//                         "types",
-//                         "reviews",
-//                         "editorial_summary",
-//                         "opening_hours",
-//                         "price_level",
-//                         "photos",
-//                         "vicinity",
-//                         "user_ratings_total",
-//                         "utc_offset_minutes",
-//                         "geometry",
-//                       ],
-//                     },
-//                     (place: any, detailStatus: string) => {
-//                       if (
-//                         detailStatus ===
-//                           window.google.maps.places.PlacesServiceStatus.OK &&
-//                         place
-//                       ) {
-//                         let isCurrentlyOpen: boolean | undefined;
-//                         try {
-//                           if (
-//                             place.opening_hours &&
-//                             typeof place.opening_hours.isOpen === "function"
-//                           ) {
-//                             isCurrentlyOpen = place.opening_hours.isOpen();
-//                           }
-//                         } catch (error) {
-//                           console.log(
-//                             "Could not determine if business is open"
-//                           );
-//                           isCurrentlyOpen = undefined;
-//                         }
-
-//                         resolve({
-//                           name: place.name || prediction.description,
-//                           address: place.formatted_address || "",
-//                           rating: place.rating,
-//                           phone: place.formatted_phone_number,
-//                           website: place.website,
-//                           placeId: prediction.place_id,
-//                           types: place.types,
-//                           reviews: place.reviews
-//                             ? place.reviews.slice(0, 5)
-//                             : [],
-//                           businessDescription:
-//                             place.editorial_summary?.overview || "",
-//                           openingHours: place.opening_hours
-//                             ? {
-//                                 periods: place.opening_hours.periods,
-//                                 weekday_text: place.opening_hours.weekday_text,
-//                               }
-//                             : undefined,
-//                           isOpen: isCurrentlyOpen,
-//                           priceLevel: place.price_level,
-//                           photos: place.photos ? place.photos.slice(0, 3) : [],
-//                           vicinity: place.vicinity,
-//                           userRatingsTotal: place.user_ratings_total,
-//                           utcOffsetMinutes: place.utc_offset_minutes,
-//                           location: place.geometry?.location
-//                             ? {
-//                                 lat: place.geometry.location.lat(),
-//                                 lng: place.geometry.location.lng(),
-//                               }
-//                             : undefined,
-//                         });
-//                       } else {
-//                         resolve({
-//                           name: prediction.description,
-//                           address:
-//                             prediction.structured_formatting.secondary_text ||
-//                             "",
-//                           placeId: prediction.place_id,
-//                         });
-//                       }
-//                     }
-//                   );
-//                 });
-//               });
-
-//             Promise.all(businessPromises).then((businesses) => {
-//               setSuggestions(businesses);
-//               setIsLoading(false);
-//             });
-//           } else {
-//             setSuggestions([]);
-//             setIsLoading(false);
-//           }
-//         }
-//       );
-//     } catch (error) {
-//       console.error("Error fetching suggestions:", error);
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const value = e.target.value;
-//     setSearchValue(value);
-
-//     if (locationStatus === "denied" && !showLocationPrompt) {
-//       setShowLocationPrompt(true);
-//     }
-
-//     handleSearch(value);
-//   };
-
-//   const handleInputFocus = () => {
-//     if (locationStatus === "denied" && !showLocationPrompt) {
-//       setShowLocationPrompt(true);
-//     }
-//   };
-
-//   const selectBusiness = (business: BusinessInfo) => {
-//     setSelectedBusiness(business);
-//     setSearchValue(business.name);
-//     setSuggestions([]);
-//   };
-
-//   const handleContinue = () => {
-//     if (selectedBusiness) {
-//       // Save all available data from selectedBusiness
-//       const businessData = {
-//         place_id: selectedBusiness.placeId,
-//         name: selectedBusiness.name,
-//         formatted_address: selectedBusiness.address,
-//         geometry: selectedBusiness.location
-//           ? { location: selectedBusiness.location }
-//           : { location: { lat: 0, lng: 0 } },
-//         types: selectedBusiness.types || [],
-//         rating: selectedBusiness.rating,
-//         phone: selectedBusiness.phone,
-//         website: selectedBusiness.website,
-//         reviews: selectedBusiness.reviews,
-//         businessDescription: selectedBusiness.businessDescription,
-//         openingHours: selectedBusiness.openingHours,
-//         isOpen: selectedBusiness.isOpen,
-//         priceLevel: selectedBusiness.priceLevel,
-//         photos: selectedBusiness.photos,
-//         vicinity: selectedBusiness.vicinity,
-//         userRatingsTotal: selectedBusiness.userRatingsTotal,
-//         utcOffsetMinutes: selectedBusiness.utcOffsetMinutes,
-//         location: selectedBusiness.location,
-//       };
-
-//       // Save to localStorage for backup
-//       localStorage.setItem("onboarding_business", JSON.stringify(businessData));
-
-//       // Call parent callback to move to next step
-//       onDone(businessData);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <h2 className="text-2xl font-semibold text-slate-800 mb-6 text-center">
-//         Find Your Business
-//       </h2>
-
-//       <p className="text-slate-600 mb-6 text-center">
-//         Search for your business using Google Places to get accurate
-//         information.
-//       </p>
-
-//       {/* Location Status Cards */}
-//       {locationStatus === "requesting" && (
-//         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-xl p-4 shadow-sm mb-6">
-//           <div className="flex items-center space-x-3">
-//             <div className="w-8 h-8 flex items-center justify-center">
-//               <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
-//             </div>
-//             <div>
-//               <p className="text-blue-700 font-medium">
-//                 Requesting your location...
-//               </p>
-//               <p className="text-blue-600 text-sm">
-//                 This helps us find businesses near you
-//               </p>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {locationStatus === "denied" && showLocationPrompt && (
-//         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-4 shadow-sm mb-6">
-//           <div className="flex items-center justify-between">
-//             <div className="flex items-center space-x-3">
-//               <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-//                 <svg
-//                   className="w-4 h-4 text-amber-600"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth={2}
-//                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-//                   />
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth={2}
-//                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-//                   />
-//                 </svg>
-//               </div>
-//               <div>
-//                 <p className="text-amber-700 font-medium">
-//                   Enable location for better results
-//                 </p>
-//                 <p className="text-amber-600 text-sm">
-//                   We'll show businesses near you first
-//                 </p>
-//               </div>
-//             </div>
-//             <button
-//               onClick={requestUserLocation}
-//               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-//             >
-//               Allow Location
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//       {locationStatus === "granted" && userLocation && (
-//         <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200/60 rounded-xl p-4 shadow-sm mb-6">
-//           <div className="flex items-center space-x-3">
-//             <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-//               <svg
-//                 className="w-4 h-4 text-emerald-600"
-//                 fill="none"
-//                 stroke="currentColor"
-//                 viewBox="0 0 24 24"
-//               >
-//                 <path
-//                   strokeLinecap="round"
-//                   strokeLinejoin="round"
-//                   strokeWidth={2}
-//                   d="M5 13l4 4L19 7"
-//                 />
-//               </svg>
-//             </div>
-//             <div>
-//               <p className="text-emerald-700 font-medium">Location detected</p>
-//               <p className="text-emerald-600 text-sm">
-//                 Searching near {userLocation.city || "your location"}
-//                 {userLocation.country && `, ${userLocation.country}`}
-//               </p>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Search Input */}
-//       <div className="mb-6">
-//         <label className="block text-sm font-medium text-slate-700 mb-2">
-//           Business Name or Address
-//         </label>
-//         <div className="relative">
-//           <svg
-//             className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400"
-//             fill="none"
-//             stroke="currentColor"
-//             viewBox="0 0 24 24"
-//           >
-//             <path
-//               strokeLinecap="round"
-//               strokeLinejoin="round"
-//               strokeWidth={2}
-//               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-//             />
-//           </svg>
-//           <input
-//             type="text"
-//             value={searchValue}
-//             onChange={handleInputChange}
-//             onFocus={handleInputFocus}
-//             placeholder={
-//               locationStatus === "granted"
-//                 ? `Search for businesses near ${userLocation?.city || "you"}...`
-//                 : "Start typing your business name..."
-//             }
-//             className="w-full pl-12 pr-12 py-4 border border-slate-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm hover:shadow-md"
-//             disabled={locationStatus === "requesting"}
-//           />
-//           {isLoading && (
-//             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-//               <div className="animate-spin rounded-full h-5 w-5 border-2 border-purple-500 border-t-transparent"></div>
-//             </div>
-//           )}
-//         </div>
-//         <p className="text-sm text-slate-500 mt-2">
-//           Select your business from the dropdown suggestions
-//         </p>
-//       </div>
-
-//       {/* Search Results */}
-//       {suggestions.length > 0 && (
-//         <div className="mb-6 space-y-3">
-//           <h3 className="text-sm font-semibold text-slate-700 flex items-center">
-//             <svg
-//               className="w-4 h-4 mr-2 text-purple-500"
-//               fill="none"
-//               stroke="currentColor"
-//               viewBox="0 0 24 24"
-//             >
-//               <path
-//                 strokeLinecap="round"
-//                 strokeLinejoin="round"
-//                 strokeWidth={2}
-//                 d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-//               />
-//             </svg>
-//             Search Results
-//           </h3>
-//           <div className="space-y-3 max-h-96 overflow-y-auto">
-//             {suggestions.map((business) => (
-//               <button
-//                 key={business.placeId}
-//                 onClick={() => selectBusiness(business)}
-//                 className="w-full text-left p-4 bg-white border border-purple-100/60 rounded-xl hover:border-purple-300/70 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-white transition-all duration-200 shadow-sm hover:shadow-lg group"
-//               >
-//                 <div className="flex items-start justify-between">
-//                   <div className="flex-1">
-//                     <div className="font-semibold text-slate-800 group-hover:text-purple-700 transition-colors duration-200 mb-1">
-//                       {business.name}
-//                     </div>
-//                     <div className="text-sm text-slate-600 flex items-center mb-2">
-//                       <svg
-//                         className="h-3.5 w-3.5 mr-1.5 text-slate-400"
-//                         fill="none"
-//                         stroke="currentColor"
-//                         viewBox="0 0 24 24"
-//                       >
-//                         <path
-//                           strokeLinecap="round"
-//                           strokeLinejoin="round"
-//                           strokeWidth={2}
-//                           d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-//                         />
-//                         <path
-//                           strokeLinecap="round"
-//                           strokeLinejoin="round"
-//                           strokeWidth={2}
-//                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-//                         />
-//                       </svg>
-//                       {business.address}
-//                     </div>
-
-//                     <div className="flex items-center space-x-4">
-//                       {business.rating && (
-//                         <div className="flex items-center space-x-1">
-//                           <svg
-//                             className="h-4 w-4 text-amber-400 fill-current"
-//                             viewBox="0 0 24 24"
-//                           >
-//                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-//                           </svg>
-//                           <span className="text-sm font-medium text-slate-700">
-//                             {business.rating.toFixed(1)}
-//                           </span>
-//                         </div>
-//                       )}
-
-//                       {business.isOpen !== undefined && (
-//                         <span
-//                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-//                             business.isOpen
-//                               ? "bg-emerald-100 text-emerald-700 border border-emerald-200/60"
-//                               : "bg-red-100 text-red-700 border border-red-200/60"
-//                           }`}
-//                         >
-//                           <div
-//                             className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-//                               business.isOpen ? "bg-emerald-500" : "bg-red-500"
-//                             }`}
-//                           ></div>
-//                           {business.isOpen ? "Open now" : "Closed"}
-//                         </span>
-//                       )}
-//                     </div>
-//                   </div>
-
-//                   <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-//                     <svg
-//                       className="w-5 h-5 text-purple-500"
-//                       fill="none"
-//                       stroke="currentColor"
-//                       viewBox="0 0 24 24"
-//                     >
-//                       <path
-//                         strokeLinecap="round"
-//                         strokeLinejoin="round"
-//                         strokeWidth={2}
-//                         d="M9 5l7 7-7 7"
-//                       />
-//                     </svg>
-//                   </div>
-//                 </div>
-//               </button>
-//             ))}
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Selected Business */}
-//       {selectedBusiness && (
-//         <div className="mb-6 p-4 border border-green-200 rounded-lg bg-green-50">
-//           <div className="flex items-start justify-between">
-//             <div className="flex-1">
-//               <div className="font-semibold text-green-800 mb-1">
-//                 ✓ Selected Business:
-//               </div>
-//               <div className="text-green-700 font-medium">
-//                 {selectedBusiness.name}
-//               </div>
-//               <div className="text-sm text-green-600">
-//                 {selectedBusiness.address}
-//               </div>
-//               {selectedBusiness.phone && (
-//                 <div className="text-sm text-green-600">
-//                   {selectedBusiness.phone}
-//                 </div>
-//               )}
-//               <div className="text-xs text-green-500 mt-1">
-//                 Place ID: {selectedBusiness.placeId}
-//               </div>
-//             </div>
-//             <button
-//               className="ml-4 text-sm text-purple-600 underline hover:text-purple-700"
-//               onClick={() => setSelectedBusiness(null)}
-//             >
-//               Change
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//       <button
-//         className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-//         disabled={!selectedBusiness}
-//         onClick={handleContinue}
-//       >
-//         {selectedBusiness
-//           ? "Continue with This Business"
-//           : "Please Select Your Business"}
-//       </button>
-
-//       {/* Info box */}
-//       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-//         <div className="flex items-start">
-//           <svg
-//             className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0"
-//             fill="none"
-//             stroke="currentColor"
-//             viewBox="0 0 24 24"
-//           >
-//             <path
-//               strokeLinecap="round"
-//               strokeLinejoin="round"
-//               strokeWidth={2}
-//               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-//             />
-//           </svg>
-//           <div>
-//             <p className="text-sm text-blue-800 font-medium">
-//               Why do we need this?
-//             </p>
-//             <p className="text-sm text-blue-700 mt-1">
-//               We use your business information to provide accurate details to
-//               callers and integrate with your existing online presence.
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default BusinessSearch;

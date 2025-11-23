@@ -1,8 +1,17 @@
-// Fixed NewOnboarding component - NO AUTHENTICATION CHECKS
+// Onboarding component with new UI design
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { OnboardingState } from "../types/onboarding";
+import {
+  MapPin,
+  ArrowLeft,
+  Store,
+  Sparkles,
+  Phone,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 
 // Step components
 import BusinessSearch from "./steps/BusinessSearch";
@@ -11,13 +20,14 @@ import BusinessFAQ from "./steps/BusinessFAQ";
 import ContactInfo from "./steps/ContactInfo";
 import SignupStep from "./steps/SignupStep";
 
-const NewOnboarding: React.FC = () => {
-  console.log('🔥 CLEAN NewOnboarding V5.0 - NO AUTH CHECKS');
-  
+const Onboarding: React.FC = () => {
+  console.log('🔥 Onboarding - New UI Design');
+
   const navigate = useNavigate();
   const { isSignedIn, isLoaded, user } = useUser();
   const [step, setStep] = useState<number>(1);
   const [maxStep, setMaxStep] = useState<number>(4);
+  const [showFullProfile, setShowFullProfile] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingState>({
     business: null,
     servicePreference: null,
@@ -199,91 +209,172 @@ const NewOnboarding: React.FC = () => {
 
   const handlePrev = () => setStep(s => Math.max(1, s - 1));
 
+  // Get step labels for display
+  const getStepLabel = () => {
+    if (step === 1) return "Find Business";
+    if (step === 2) return "Select Plan";
+    if (step === 3) return "Configure AI";
+    if (step === 4 && maxStep === 5) return "Contact Info";
+    if (step === 5 || (step === 4 && maxStep === 4)) return "Finalize";
+    return "Setup";
+  };
+
+  // Get category label from FAQ data
+  const getCategoryLabel = () => {
+    if (!onboardingData.faqData?.category) return null;
+    const categories = [
+      { id: "restaurants", label: "Restaurants & Food" },
+      { id: "healthcare", label: "Healthcare & Medical" },
+      { id: "legal", label: "Legal & Law Firms" },
+      { id: "real_estate", label: "Real Estate" },
+      { id: "automotive", label: "Automotive Services" },
+      { id: "fitness", label: "Fitness & Wellness" },
+      { id: "others", label: "Other Business" }
+    ];
+    const cat = categories.find(c => c.id === onboardingData.faqData?.category);
+    return cat?.label || "Other Business";
+  };
+
+  // Calculate progress percentage
+  const progressPercentage = (step / steps.length) * 100;
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (progressPercentage / 100) * circumference;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50/30 via-white to-purple-50/40">
-      {/* Progress Bar */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-purple-100/60 shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 flex items-center justify-center shadow-lg shadow-purple-200/50">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">Setup Your AI Agent ✅ V5.0 CLEAN</h1>
-                <p className="text-sm text-slate-500 mt-0.5">Quick setup - No authentication required until signup!</p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100/50 px-4 py-2 rounded-full border border-purple-200/40 shadow-sm">
-              <span className="text-sm font-medium text-purple-700">
-                Step {step} of {steps.length}
-              </span>
-            </div>
+    <div className="fixed inset-0 z-[100] bg-white flex flex-col lg:flex-row overflow-hidden font-sans h-screen w-screen">
+      {/* Sidebar (Left 30%) */}
+      <div className="w-full lg:w-[280px] xl:w-[320px] bg-gray-50 border-r border-gray-200/60 p-5 flex flex-col justify-between h-full hidden lg:flex shadow-[inset_-10px_0_20px_-10px_rgba(0,0,0,0.05)] relative z-10 shrink-0">
+
+        {/* Header & Progress */}
+        <div className="flex flex-col w-full">
+          <div className="flex items-center gap-2 cursor-pointer mb-6" onClick={() => navigate('/')}>
+            <span className="text-brand-700 font-extrabold text-xl tracking-tight">Ask Johnny</span>
           </div>
-          
-          {/* Progress Steps */}
-          <div className="flex justify-center space-x-2 mb-4">
-            {steps.map((s) => (
-              <div
-                key={s.id}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                  step === s.id
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-200/50"
-                    : step > s.id
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-200 text-gray-500"
-                }`}
-              >
-                {s.label}
+
+          <div className="flex flex-col items-center relative">
+             {/* Circular Progress Chart */}
+             <div className="relative w-32 h-32 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90 overflow-visible">
+                  <circle cx="50%" cy="50%" r={radius} stroke="#E5E7EB" strokeWidth="6" fill="transparent" />
+                  <circle cx="50%" cy="50%" r={radius} stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray={circumference} strokeDashoffset={dashOffset} strokeLinecap="round" className="text-brand-600 transition-all duration-1000 ease-out" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-gray-900">{Math.round(progressPercentage)}%</span>
+                </div>
+             </div>
+
+             <div className="mt-2 text-center">
+               <h3 className="text-base font-bold text-gray-900">{getStepLabel()}</h3>
+               <p className="text-xs text-gray-500 mt-0.5">Step {step} of {steps.length}</p>
+             </div>
+          </div>
+        </div>
+
+        {/* Live Profile Preview - Glass Card */}
+        <div className="mt-auto relative group w-full">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+
+          <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-3 border border-white/60 shadow-xl flex flex-col gap-3 transition-all duration-300">
+
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-1.5">
+                 <Sparkles size={12} className="text-brand-500 fill-brand-500" />
+                 <h3 className="text-[9px] font-extrabold text-brand-900/70 uppercase tracking-widest">Live Builder</h3>
               </div>
-            ))}
+              <button onClick={() => setShowFullProfile(!showFullProfile)} className="text-brand-600 hover:bg-brand-50 rounded p-1 transition-colors">
+                 {showFullProfile ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+              </button>
+            </div>
+
+            {/* Main Identity */}
+            <div className="flex items-start gap-2.5 pb-2 border-b border-gray-100">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-md flex-shrink-0 bg-gradient-to-br from-brand-500 to-brand-700`}>
+                  <Store size={14} className="text-white" />
+              </div>
+              <div className="overflow-hidden min-w-0 flex-1">
+                <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-0.5 truncate">Business Name</div>
+                <div className="font-bold text-gray-900 text-xs leading-tight truncate" title={onboardingData.business?.name}>
+                  {onboardingData.business?.name || <span className="text-gray-400 font-normal italic">Not selected</span>}
+                </div>
+                {onboardingData.business?.types?.[0] && (
+                   <div className="text-[9px] text-brand-600 font-medium mt-0.5 truncate capitalize">{onboardingData.business.types[0].replace(/_/g, ' ')}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Detailed Stats */}
+            <div className="space-y-1.5">
+               {(showFullProfile || onboardingData.business) && (
+                 <div className="flex items-start gap-2 text-[10px] overflow-hidden">
+                    <MapPin size={12} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600 leading-snug truncate" title={onboardingData.business?.address}>
+                      {onboardingData.business?.address || <span className="text-gray-300 italic">Address pending...</span>}
+                    </span>
+                 </div>
+               )}
+
+               {(showFullProfile || onboardingData.business) && (
+                 <div className="flex items-center gap-2 text-[10px] overflow-hidden">
+                    <Phone size={12} className="text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-600 truncate">
+                      {onboardingData.business?.phone || onboardingData.business?.formatted_phone_number || <span className="text-gray-300 italic">Phone pending...</span>}
+                    </span>
+                 </div>
+               )}
+
+               <div className="h-px bg-gray-100 my-1"></div>
+
+               {/* Plan & Industry Compact Row */}
+               <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="text-[9px] text-gray-400 font-medium mb-0.5">Plan</div>
+                    {onboardingData.servicePreference ? (
+                       <div className="flex items-center gap-1">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-700 truncate">
+                            {onboardingData.servicePreference === 'full_service' ? 'Pro' : 'Starter'}
+                          </span>
+                       </div>
+                    ) : <span className="text-gray-300 text-[10px]">--</span>}
+                  </div>
+                  <div>
+                    <div className="text-[9px] text-gray-400 font-medium mb-0.5">Industry</div>
+                    <div className="text-[10px] font-bold text-gray-800 truncate">
+                      {getCategoryLabel() || <span className="text-gray-300 font-normal">--</span>}
+                    </div>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Step Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-purple-100/60 shadow-xl shadow-purple-100/20 overflow-hidden">
-          <div className="p-8">
-            {step === 1 && <BusinessSearch onDone={handleBusinessSearchDone} />}
-            {step === 2 && <ServicePreferenceSelect onDone={handleServicePrefDone} />}
-            {step === 3 && <BusinessFAQ onDone={handleFAQDone} />}
-            {step === 4 && maxStep === 5 && <ContactInfo onDone={handleContactInfoDone} />}
-            {step === 4 && maxStep === 4 && (
-              <div>
-                <div className="mb-4 p-3 bg-blue-100 rounded-lg">
-                  <p className="text-blue-800 text-sm">DEBUG: SignupStep rendered (step 4 of 4)</p>
-                </div>
-                <SignupStep onDone={handleSignupDone} />
-              </div>
-            )}
-            {step === 5 && (
-              <div>
-                <div className="mb-4 p-3 bg-blue-100 rounded-lg">
-                  <p className="text-blue-800 text-sm">DEBUG: SignupStep rendered (step 5 of 5)</p>
-                </div>
-                <SignupStep onDone={handleSignupDone} />
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Main Content Area (Right 70%) */}
+      <div className="flex-1 h-full relative bg-white overflow-hidden flex flex-col">
+         {/* Mobile Header */}
+         <div className="lg:hidden p-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white/95 backdrop-blur z-20 shrink-0">
+            <span className="font-bold text-brand-700 text-sm">Step {step} of {steps.length}</span>
+            <button onClick={() => navigate('/')} className="p-2 bg-gray-50 rounded-full text-gray-600"><ArrowLeft size={20} /></button>
+         </div>
 
-        {/* Navigation */}
-        {step > 1 && (
-          <div className="flex justify-start mt-6">
-            <button
-              className="px-6 py-3 bg-white/70 backdrop-blur-sm text-slate-600 rounded-lg hover:bg-white/90 transition-all duration-200 border border-slate-200/60 shadow-sm"
-              onClick={handlePrev}
-            >
-              ← Previous
-            </button>
-          </div>
-        )}
+         {/* Content Wrapper */}
+         <div className="flex-1 overflow-hidden relative flex flex-col">
+            <div className="absolute inset-0 pointer-events-none z-0">
+               <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-b from-brand-50/50 to-transparent rounded-bl-full opacity-50"></div>
+            </div>
+
+            <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
+               {step === 1 && <BusinessSearch onDone={handleBusinessSearchDone} onBack={step > 1 ? handlePrev : undefined} />}
+               {step === 2 && <ServicePreferenceSelect onDone={handleServicePrefDone} onBack={handlePrev} />}
+               {step === 3 && <BusinessFAQ onDone={handleFAQDone} onBack={handlePrev} />}
+               {step === 4 && maxStep === 5 && <ContactInfo onDone={handleContactInfoDone} onBack={handlePrev} />}
+               {step === 4 && maxStep === 4 && <SignupStep onDone={handleSignupDone} onBack={handlePrev} />}
+               {step === 5 && <SignupStep onDone={handleSignupDone} onBack={handlePrev} />}
+            </div>
+         </div>
       </div>
     </div>
   );
 };
 
-export default NewOnboarding;
+export default Onboarding;

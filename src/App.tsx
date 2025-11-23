@@ -13,7 +13,6 @@ import SetupLoading from "./pages/SetupLoading";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
-import NewOnboarding from "./pages/Onboarding";
 
 // payment related pages
 import { SuccessPage } from "./pages/stripe/SuccessPage";
@@ -167,7 +166,7 @@ function App() {
               path="/new-onboarding"
               element={
                 <PublicRoute>
-                  <NewOnboarding />
+                  <Onboarding />
                 </PublicRoute>
               }
             />

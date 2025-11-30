@@ -6,7 +6,7 @@ const Benefits: React.FC = () => {
     <section className="py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-white mb-8 md:mb-12">
       <div className="max-w-7xl mx-auto">
         <RevealOnScroll>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 md:mb-12 max-w-2xl">
+          <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-10 md:mb-12 max-w-2xl">
             Four ways we make your <br/>
             Business <span className="text-brand-600">Better</span>
           </h2>

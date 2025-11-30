@@ -8,7 +8,7 @@ const Comparison: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <RevealOnScroll>
           <div className="text-center mb-10 md:mb-16">
-             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
+             <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 mb-4 md:mb-6">
               Why an AI receptionist outperforms <br/>
               <span className="text-gradient">traditional voicemail</span>—every single time.
              </h2>

@@ -310,7 +310,7 @@ const DashboardAnalytics: React.FC = () => {
             </span>
           )}
           {callsError && (
-            <span className="text-xs text-red-500">
+            <span className="text-xs text-rose-500">
               <AlertTriangle className="inline w-4 h-4 mr-1" />
               {callsError}
             </span>
@@ -373,8 +373,8 @@ const DashboardAnalytics: React.FC = () => {
                   {analytics.callsThisWeek} calls this week
                 </p>
               </div>
-              <div className="p-3 bg-red-50 rounded-full">
-                <PhoneCall className="h-6 w-6 text-red-500" />
+              <div className="p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-full">
+                <PhoneCall className="h-6 w-6 text-[#A26BFF]" />
               </div>
             </div>
           </CardContent>
@@ -408,7 +408,7 @@ const DashboardAnalytics: React.FC = () => {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-[#A26BFF] to-[#7A57FF] h-2 rounded-full transition-all duration-300"
                     style={{
                       width: `${
                         analytics.minutesQuota
@@ -422,8 +422,8 @@ const DashboardAnalytics: React.FC = () => {
                   ></div>
                 </div>
               </div>
-              <div className="p-3 bg-red-50 rounded-full ml-4">
-                <Clock className="h-6 w-6 text-red-500" />
+              <div className="p-3 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-full ml-4">
+                <Clock className="h-6 w-6 text-[#7A57FF]" />
               </div>
             </div>
           </CardContent>
@@ -444,8 +444,8 @@ const DashboardAnalytics: React.FC = () => {
                   {analytics.answerRate}% answer rate
                 </p>
               </div>
-              <div className="p-3 bg-red-50 rounded-full">
-                <Clock className="h-6 w-6 text-red-500" />
+              <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full">
+                <Clock className="h-6 w-6 text-emerald-600" />
               </div>
             </div>
           </CardContent>
@@ -466,8 +466,8 @@ const DashboardAnalytics: React.FC = () => {
                   {analytics.uniqueCallers} unique callers
                 </p>
               </div>
-              <div className="p-3 bg-red-50 rounded-full">
-                <TrendingUp className="h-6 w-6 text-red-500" />
+              <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-full">
+                <TrendingUp className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>

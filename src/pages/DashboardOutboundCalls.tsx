@@ -120,7 +120,7 @@ export const DashboardOutbound: React.FC = () => {
       case "Completed":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case "Failed":
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-orange-500" />;
       case "Paused":
         return <Pause className="h-4 w-4 text-orange-500" />;
       default:
@@ -384,7 +384,7 @@ export const DashboardOutbound: React.FC = () => {
       Scheduled: "bg-blue-50 text-blue-600 border-blue-200",
       "In Progress": "bg-green-50 text-green-600 border-green-200",
       Completed: "bg-green-50 text-green-600 border-green-200",
-      Failed: "bg-red-50 text-red-600 border-red-200",
+      Failed: "bg-orange-50 text-orange-600 border-orange-200",
       Paused: "bg-orange-50 text-orange-600 border-orange-200",
     };
     return (
@@ -485,15 +485,15 @@ export const DashboardOutbound: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-red-100 rounded-lg">
-            <PhoneOutgoing className="h-6 w-6 text-red-600" />
+          <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg">
+            <PhoneOutgoing className="h-6 w-6 text-[#A26BFF]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold text-red-700">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#A26BFF] to-[#7A57FF] bg-clip-text text-transparent">
                 Outbound Calls
               </h1>
-              <Badge className="bg-red-100 text-red-600 text-xs px-2 py-1">
+              <Badge className="bg-purple-100 text-[#7A57FF] text-xs px-2 py-1">
                 ALPHA
               </Badge>
             </div>
@@ -628,7 +628,7 @@ export const DashboardOutbound: React.FC = () => {
                         </p>
                       </div>
                       <div className="flex items-center gap-1 mt-1">
-                        <span className="text-xs text-red-500">
+                        <span className="text-xs text-emerald-600">
                           {analytics.successRate < 50
                             ? "Needs improvement"
                             : "Good"}
@@ -645,7 +645,7 @@ export const DashboardOutbound: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-red-700">
+                  <CardTitle className="flex items-center gap-2 text-[#7A57FF]">
                     <Clock className="h-5 w-5" />
                     Campaign Status Breakdown
                   </CardTitle>
@@ -695,7 +695,7 @@ export const DashboardOutbound: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg border">
                     <div className="flex items-center gap-3">
-                      <XCircle className="h-4 w-4 text-red-500" />
+                      <AlertCircle className="h-4 w-4 text-blue-500" />
                       <span className="font-medium">Queued</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -711,7 +711,7 @@ export const DashboardOutbound: React.FC = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-red-700">
+                  <CardTitle className="flex items-center gap-2 text-[#7A57FF]">
                     <BarChart3 className="h-5 w-5" />
                     Call Performance Metrics
                   </CardTitle>
@@ -786,7 +786,7 @@ export const DashboardOutbound: React.FC = () => {
                   Loading campaigns...
                 </div>
               ) : campaignsError ? (
-                <div className="py-8 text-center text-red-600">
+                <div className="py-8 text-center text-rose-600">
                   {campaignsError}
                 </div>
               ) : campaigns.length === 0 ? (
@@ -955,7 +955,7 @@ export const DashboardOutbound: React.FC = () => {
                   )}
                 </div>
                 {fileError && (
-                  <p className="text-sm text-red-600 mt-1">{fileError}</p>
+                  <p className="text-sm text-rose-600 mt-1">{fileError}</p>
                 )}
                 <p className="text-xs text-muted-foreground mt-2">
                   CSV format: number,name (first row is header)
@@ -1026,7 +1026,7 @@ export const DashboardOutbound: React.FC = () => {
                     Loading business details...
                   </p>
                 ) : userError ? (
-                  <p className="text-sm text-red-600">{userError}</p>
+                  <p className="text-sm text-rose-600">{userError}</p>
                 ) : userData?.businessDetails ? (
                   <div className="text-sm mt-2">
                     <p>
@@ -1094,9 +1094,9 @@ export const DashboardOutbound: React.FC = () => {
 
               {/* Show error if any */}
               {fileError && (
-                <div className="mt-4 p-3 rounded bg-red-50 border">
-                  <h4 className="font-medium text-red-800">Error</h4>
-                  <p className="text-sm text-red-700 mt-1">{fileError}</p>
+                <div className="mt-4 p-3 rounded bg-rose-50 border border-rose-200">
+                  <h4 className="font-medium text-rose-800">Error</h4>
+                  <p className="text-sm text-rose-700 mt-1">{fileError}</p>
                 </div>
               )}
             </CardContent>
@@ -1115,7 +1115,7 @@ export const DashboardOutbound: React.FC = () => {
           </DialogHeader>
           
           {campaignDetailsError ? (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg">
               <h4 className="font-medium text-red-800 mb-2">Error Loading Campaign Details</h4>
               <p className="text-red-700 text-sm">{campaignDetailsError}</p>
               <p className="text-red-600 text-xs mt-2">

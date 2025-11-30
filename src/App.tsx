@@ -8,7 +8,8 @@ import { useUser } from "@clerk/clerk-react";
 import { OnboardingProvider } from "./context/OnboardingContext";
 import NewLandingPage from "./pages/newLandingPage";
 import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
+import NewOnboarding from "./pages/newOnboarding";
+import Dashboard from "./pages/DashboardNew";
 import SetupLoading from "./pages/SetupLoading";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AnimatePresence } from "framer-motion";
@@ -166,7 +167,7 @@ function App() {
               path="/new-onboarding"
               element={
                 <PublicRoute>
-                  <Onboarding />
+                  <NewOnboarding onClose={() => window.location.href = '/'} />
                 </PublicRoute>
               }
             />

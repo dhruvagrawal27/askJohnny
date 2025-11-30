@@ -301,23 +301,16 @@ const SetupLoading = () => {
       setStatus(steps[1])
       await sleep(1500)
 
+      const businessDetails = onboardingData.step1?.businessDetails || {};
+      
       const businessData = {
         user_id: userId,
-        business_name: businessName,
-        address: onboardingData.business?.address ||  // New structure
-                onboardingData.step1?.businessDetails?.address || 
-                onboardingData.step1?.businessDetails?.formatted_address || '',
-        phone: onboardingData.business?.phone ||  // New structure
-               onboardingData.step1?.phone ||     // Alternative
-               onboardingData.step1?.businessDetails?.phone || 
-               onboardingData.step1?.businessDetails?.formatted_phone_number ||
-               onboardingData.step4?.phone || '',
-        hours: onboardingData.business?.openingHours?.weekday_text?.join(', ') || // New structure
-              onboardingData.step1?.businessDetails?.hours || '',
-        business_category: onboardingData.faqData?.category ||      // New structure
-                          onboardingData.step3b?.categoryId || 'other',
-        category_answers: onboardingData.faqData?.answers ||        // New structure
-                         onboardingData.step3b?.answers || {},
+        business_name: businessDetails.name || businessName,
+        address: businessDetails.formatted_address || '',
+        phone: businessDetails.phone || '',
+        hours: businessDetails.openingHours?.weekday_text?.join(', ') || '',
+        business_category: onboardingData.step3b?.categoryId || 'other',
+        category_answers: onboardingData.step3b?.answers || {},
       }
 
       console.log('💾 Business data to save:', businessData)
@@ -416,6 +409,9 @@ const SetupLoading = () => {
         const faqData = onboardingData.step3b || {};
         const formattedFAQData = formatFAQData(faqData);
 
+        // Get businessDetails in the exact format required
+        const businessDetails = onboardingData.step1?.businessDetails || {};
+        
         const agentPayload = {
           user_id: user.id,
           user_email: user.emailAddresses[0]?.emailAddress || '',
@@ -423,9 +419,8 @@ const SetupLoading = () => {
           phone_number: phoneNumber,
           plan_name: selectedPlan,
           timestamp: new Date().toISOString(),
-          businessDetails: onboardingData.business ||                    // New structure
-                          onboardingData.step1?.businessDetails || {},   // Old structure
-          faqData: formattedFAQData // Properly formatted FAQ data with questions and answers
+          businessDetails: businessDetails,
+          faqData: formattedFAQData
         };
 
         console.log('🚀 Calling agent training webhook...');
@@ -501,6 +496,12 @@ const SetupLoading = () => {
       await sleep(1000)
 
       try {
+        // Extract call_handling and call_schedule from step2 data
+        const callHandlingArray = [];
+        if (onboardingData.step2?.voicemail) callHandlingArray.push('voicemail');
+        if (onboardingData.step2?.scheduling) callHandlingArray.push('scheduling');
+        if (onboardingData.step2?.faq) callHandlingArray.push('faq');
+        
         const onboardingRecord = {
           user_id: userId,
           step1_data: onboardingData.step1 || {},
@@ -509,6 +510,8 @@ const SetupLoading = () => {
           step3b_data: onboardingData.step3b || {},
           step4_data: onboardingData.step4 || {},
           step5_data: onboardingData.step5 || {},
+          call_handling: callHandlingArray,
+          call_schedule: onboardingData.step3?.scheduleType || 'business_hours',
           is_completed: true,
           completed_at: new Date().toISOString(),          
         }

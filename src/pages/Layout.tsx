@@ -34,9 +34,6 @@ const sidebarItems = [
   { title: "Voices", url: "/dashboard/voices", icon: Mic },
   { title: "Knowledge Base", url: "/dashboard/knowledge", icon: BookOpen },
   { title: "Integrations", url: "/dashboard/integrations", icon: Settings },
-  // { title: "Call Planning", url: "/dashboard/planning", icon: Calendar },
-  // { title: "Website Agent", url: "/dashboard/website", icon: Globe },
-  // { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({
@@ -46,37 +43,40 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        {/* Sidebar */}
-        <Sidebar className="border-r border-border">
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Phone className="h-6 w-6 text-purple-600" />
-              <span className="font-bold text-lg text-purple-900">
-                CallAgent Pro
+      <div className="min-h-screen flex w-full bg-white">
+        {/* Professional Sidebar - Landing Page Style */}
+        <Sidebar className="border-r border-[#ECE8FF]/60">
+          {/* Logo Section */}
+          <div className="p-6 border-b border-[#ECE8FF]/60">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#A26BFF] to-[#7A57FF] flex items-center justify-center shadow-lg">
+                <Phone className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold text-xl text-brand-700 tracking-tight">
+                Ask Johnny
               </span>
             </div>
           </div>
 
-          <SidebarContent>
+          <SidebarContent className="px-3 py-4">
             <SidebarGroup>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="space-y-1">
                   {sidebarItems.map((item) => {
                     const Icon = item.icon;
                     const active = location.pathname === item.url;
                     return (
                       <SidebarMenuItem key={item.url}>
-                        <Link to={item.url}>
+                        <Link to={item.url} className="block">
                           <SidebarMenuButton
-                            className={`${
+                            className={`relative w-full justify-start h-11 px-4 rounded-xl font-semibold transition-all duration-200 ${
                               active
-                                ? "bg-purple-600 text-white hover:bg-purple-700 hover:text-white"
-                                : "hover:bg-purple-50 hover:text-purple-700"
+                                ? "bg-gradient-to-r from-[#A26BFF] to-[#7A57FF] text-white shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30"
+                                : "text-[#6A6F7A] hover:bg-gray-50 hover:text-[#0C0F1A]"
                             }`}
                           >
-                            <Icon className="h-4 w-4" />
-                            <span>{item.title}</span>
+                            <Icon className="h-5 w-5 mr-3" />
+                            <span className="text-sm">{item.title}</span>
                           </SidebarMenuButton>
                         </Link>
                       </SidebarMenuItem>
@@ -86,28 +86,36 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <div className="mt-auto p-4 border-t border-border">
-              <UserButton afterSignOutUrl="/" />
+            {/* User Section */}
+            <div className="mt-auto p-4 border-t border-[#ECE8FF]/60">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-[#ECE8FF]/40">
+                <UserButton afterSignOutUrl="/" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-[#6A6F7A] font-semibold">Account</p>
+                </div>
+              </div>
             </div>
           </SidebarContent>
         </Sidebar>
 
         {/* Main content */}
-        <main className="flex-1 overflow-hidden">
-          <header className="border-b border-border bg-white">
-            <div className="flex items-center justify-between p-4">
+        <main className="flex-1 overflow-hidden" style={{
+          background: 'radial-gradient(125% 125% at 50% 10%, #FFFFFF 35%, #E9D5FF 75%, #C4B5FD 100%)'
+        }}>
+          <header className="border-b border-[#ECE8FF]/60 bg-white/80 backdrop-blur-md">
+            <div className="flex items-center justify-between px-6 py-4">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
-                <h1 className="text-xl font-semibold text-purple-900">
+                <h1 className="text-2xl font-bold text-[#0C0F1A]">
                   {sidebarItems.find((i) => i.url === location.pathname)
-                    ?.title || ""}
+                    ?.title || "Dashboard"}
                 </h1>
               </div>
               <UserButton afterSignOutUrl="/" />
             </div>
           </header>
 
-          <div className="h-[calc(100vh-73px)] overflow-y-auto bg-white">
+          <div className="h-[calc(100vh-73px)] overflow-y-auto">
             {children}
           </div>
         </main>

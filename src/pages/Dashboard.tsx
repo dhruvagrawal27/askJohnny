@@ -15,8 +15,17 @@ import {
   ListChecks,
   PhoneCall,
   AlertCircle,
+  Sparkles,
+  TrendingUp,
+  Activity,
+  MessageSquare,
+  Calendar,
+  Star,
+  Zap,
+  Settings,
+  LogOut,
 } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getErrorMessage } from "../utils/dbHealthCheck";
@@ -163,6 +172,7 @@ const CollapsibleSection = ({
 
 const Dashboard = () => {
   const { user, isSignedIn, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -543,22 +553,60 @@ const Dashboard = () => {
     !userData?.assigned_phone_number || !userData?.agent_id;
 
   return (
-    <div className="p-6 space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="space-y-6"
-      >
-        <div>
-          <h2 className="text-2xl font-semibold text-purple-900">
-            Welcome to your Dashboard
-          </h2>
-          <p className="text-purple-600">
-            Your AI agent configuration overview.
-          </p>
+    <div className="min-h-screen" style={{
+      background: 'radial-gradient(125% 125% at 50% 10%, #FFFFFF 35%, #E9D5FF 75%, #C4B5FD 100%)'
+    }}>
+      {/* Top Navbar - Landing Page Style */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-brand-700 font-bold text-xl tracking-tight">Ask Johnny</span>
+            <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Dashboard</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/dashboard/settings')}
+              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              <Settings className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => signOut()}
+              className="px-4 py-2 btn-secondary-custom flex items-center gap-2 text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
         </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="pt-24 px-6 lg:px-12 pb-12 max-w-7xl mx-auto">
+        {/* Welcome Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-10"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold text-[#0C0F1A] mb-2">
+                Welcome back, <span className="text-gradient">{user?.firstName || 'there'}</span>
+              </h1>
+              <p className="text-[#6A6F7A] text-lg">
+                {businessName !== "Not set" ? businessName : "Your AI voice assistant dashboard"}
+              </p>
+            </div>
+            {trainingStatus === "completed" && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-700 font-semibold text-sm">Agent Active</span>
+              </div>
+            )}
+          </div>
+        </motion.div>
 
         {/* Status Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

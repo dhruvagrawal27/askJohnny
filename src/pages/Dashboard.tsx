@@ -937,7 +937,7 @@ const Dashboard = () => {
             </div>
           </CollapsibleSection>
         </div>
-      </motion.div>
+      </div>
 
       {/* Review Modal */}
       {showReviewModal && (

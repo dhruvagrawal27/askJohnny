@@ -42,12 +42,6 @@ interface BusinessSearchProps {
   onBack?: () => void;
 }
 
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-
 const BusinessSearch: React.FC<BusinessSearchProps> = ({ onDone, onBack }) => {
   const location = useLocation();
   const { businessName: defaultBusinessName } =

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Scale, Utensils, Home, Wrench, User, Play } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Scale, Utensils, Home, Wrench, User } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 
 const DemoSection: React.FC = () => {
   const [selectedBusiness, setSelectedBusiness] = useState<number>(0);
   const [selectedVoice, setSelectedVoice] = useState<'deep' | 'morvi'>('deep');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const businessTypes = [
     { icon: Scale, label: 'Legal' },
@@ -12,6 +14,37 @@ const DemoSection: React.FC = () => {
     { icon: Home, label: 'Real Estate' },
     { icon: Wrench, label: 'Service' },
   ];
+
+  const videoSources = {
+    deep: '/demo-deep.mp4',
+    morvi: '/demo-morvi.mp4'
+  };
+
+  // Handle voice change - smoothly transition videos
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+      if (isPlaying) {
+        videoRef.current.play();
+      }
+    }
+  }, [selectedVoice]);
+
+  const handlePlayDemo = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const handleVideoEnd = () => {
+    setIsPlaying(false);
+  };
 
   return (
     <section className="py-16 md:py-20 px-4 sm:px-6 lg:px-8">
@@ -72,27 +105,55 @@ const DemoSection: React.FC = () => {
               </div>
 
               <div className="pt-4">
-                <button className="w-full md:w-auto px-6 py-3 md:px-8 md:py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-white font-medium transition-all flex items-center justify-center gap-2 group text-sm md:text-base">
-                  <span>See Demo</span>
-                  <Play size={16} className="fill-current group-hover:scale-110 transition-transform"/>
+                <button 
+                  onClick={handlePlayDemo}
+                  className="w-full md:w-auto px-6 py-3 md:px-8 md:py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-white font-medium transition-all flex items-center justify-center gap-2 group text-sm md:text-base"
+                >
+                  <span>{isPlaying ? 'Pause Demo' : 'See Demo'}</span>
+                  <svg 
+                    className={`w-4 h-4 fill-current group-hover:scale-110 transition-transform ${isPlaying ? '' : ''}`}
+                    viewBox="0 0 24 24"
+                  >
+                    {isPlaying ? (
+                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                    ) : (
+                      <path d="M8 5v14l11-7z" />
+                    )}
+                  </svg>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Visual Right */}
+          {/* Visual Right - Video Player */}
           <div className="flex-1 relative min-h-[300px] md:min-h-[400px]">
-              <div className="absolute inset-0 bg-[#4a3865] rounded-[2rem] border-4 border-white/10 shadow-2xl overflow-hidden">
-                  {/* Interface Placeholder */}
-                  <div className="h-full w-full flex items-center justify-center bg-white/5 backdrop-blur-sm">
-                      <div className="flex flex-col items-center gap-4">
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 flex items-center justify-center animate-pulse">
-                              <Play size={24} className="md:w-8 md:h-8 ml-1 fill-white text-white" />
-                          </div>
-                          <span className="text-white/60 font-medium tracking-wide text-sm">Interactive Demo Preview</span>
-                      </div>
+            <div className="absolute inset-0 bg-[#4a3865] rounded-[2rem] border-4 border-white/10 shadow-2xl overflow-hidden">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                muted
+                playsInline
+                onEnded={handleVideoEnd}
+                poster=""
+              >
+                <source src={videoSources[selectedVoice]} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              
+              {/* Play overlay when not playing */}
+              {!isPlaying && (
+                <div 
+                  className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer transition-opacity duration-300 hover:bg-black/40"
+                  onClick={handlePlayDemo}
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110">
+                    <svg className="w-6 h-6 md:w-8 md:h-8 ml-1 fill-white text-white" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
                   </div>
-              </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </RevealOnScroll>

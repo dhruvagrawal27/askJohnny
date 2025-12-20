@@ -1,5 +1,4 @@
 import React from 'react';
-import { Store, Sliders, Play, Phone } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 
 const HowItWorks: React.FC = () => {
@@ -25,20 +24,18 @@ const HowItWorks: React.FC = () => {
               {/* Visual - Left */}
               <div className="flex-1 w-full">
                 <div 
-                  className="rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
+                  className="rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
                   style={{ background: 'linear-gradient(131deg, #F3F4FF 10.99%, #BCBFFF 60.55%, #C7BDFF 105.95%)' }}
                 >
-                  <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 aspect-square md:aspect-[4/3] flex flex-col items-center justify-center relative shadow-sm">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-6 text-brand-600">
-                        <Store size={28} className="md:w-8 md:h-8" />
-                    </div>
-                    <div className="space-y-2 w-full max-w-[160px] md:max-w-[200px]">
-                        <div className="h-2 w-full bg-white/50 rounded-full"></div>
-                        <div className="h-2 w-2/3 bg-white/50 rounded-full"></div>
-                    </div>
-                    {/* Decorative circle */}
-                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+                  <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-xl">
+                    <img 
+                      src="/1.png" 
+                      alt="Select your business from Google Business" 
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
+                  {/* Decorative circle */}
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
                 </div>
               </div>
               {/* Text - Right */}
@@ -69,20 +66,15 @@ const HowItWorks: React.FC = () => {
               {/* Visual - Right */}
               <div className="flex-1 w-full">
                 <div 
-                  className="rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
+                  className="rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
                   style={{ background: 'linear-gradient(132deg, #F4F3FE 14.34%, #D6CEFF 98.07%)' }}
                 >
-                  <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 aspect-square md:aspect-[4/3] flex flex-col items-center justify-center relative shadow-sm">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-6 text-brand-600">
-                        <Sliders size={28} className="md:w-8 md:h-8" />
-                    </div>
-                    <div className="space-y-3 w-full max-w-[160px] md:max-w-[200px] flex flex-col items-center">
-                        <div className="flex gap-2 w-full justify-center">
-                          <div className="w-8 h-2 bg-white/60 rounded-full"></div>
-                          <div className="w-12 h-2 bg-white/40 rounded-full"></div>
-                        </div>
-                        <div className="w-3/4 h-2 bg-white/30 rounded-full"></div>
-                    </div>
+                  <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-xl">
+                    <img 
+                      src="/2.png" 
+                      alt="Add quick details and customize your AI" 
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
                 </div>
               </div>
@@ -114,14 +106,15 @@ const HowItWorks: React.FC = () => {
               {/* Visual - Left */}
               <div className="flex-1 w-full">
                 <div 
-                  className="rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
+                  className="rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
                   style={{ background: 'linear-gradient(128deg, #C0C2FF 11.94%, #F3F4FF 98.92%)' }}
                 >
-                  <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 aspect-square md:aspect-[4/3] flex flex-col items-center justify-center relative shadow-sm">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-6 text-brand-600">
-                        <Play size={28} className="ml-1 md:w-8 md:h-8" />
-                    </div>
-                    <div className="w-32 h-8 bg-white/40 rounded-lg backdrop-blur-sm"></div>
+                  <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-xl">
+                    <img 
+                      src="/3.png" 
+                      alt="Activate your plan and access dashboard" 
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
                 </div>
               </div>
@@ -153,18 +146,15 @@ const HowItWorks: React.FC = () => {
               {/* Visual - Right */}
               <div className="flex-1 w-full">
                 <div 
-                  className="rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
+                  className="rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500"
                   style={{ background: 'linear-gradient(123deg, #FAF6FE -2.41%, #E5D0FF 74.4%)' }}
                 >
-                  <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 aspect-square md:aspect-[4/3] flex flex-col items-center justify-center relative shadow-sm">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-6 text-brand-600">
-                        <Phone size={28} className="md:w-8 md:h-8" />
-                    </div>
-                    <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-brand-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="mt-6 flex gap-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-xs font-bold text-brand-900/50">LIVE</span>
-                    </div>
+                  <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-xl">
+                    <img 
+                      src="/4.png" 
+                      alt="Set your number live and start receiving calls" 
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
                 </div>
               </div>

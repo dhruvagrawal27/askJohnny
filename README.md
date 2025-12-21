@@ -1,4 +1,4 @@
-# AskJohnny - AI-Powered Call Agents
+# AskJohnny - AI-Powered Call Agent
 
 A modern, full-stack web application where customers can create their own AI-powered calling agent with a 6-step onboarding process.
 

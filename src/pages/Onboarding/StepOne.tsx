@@ -9,11 +9,51 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isTrainingJohnny, setIsTrainingJohnny] = useState(false);
+  const [trainingMessage, setTrainingMessage] = useState('');
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  // Training messages
+  const trainingMessages = [
+    "Teaching Johnny about your business",
+    "Personalizing Johnny's responses for your industry",
+    "Configuring Johnny's brain cells",
+    "Training Johnny to sound professional",
+    "Almost there... Johnny is 99% trained"
+  ];
+
+  // Helper function to get initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Handle training Johnny
+  const handleTrainJohnny = () => {
+    setIsTrainingJohnny(true);
+    let messageIndex = 0;
+    setTrainingMessage(trainingMessages[0]);
+
+    const messageInterval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % trainingMessages.length;
+      setTrainingMessage(trainingMessages[messageIndex]);
+    }, 1600); // Change message every 1.6 seconds (5 messages in 8 seconds)
+
+    // After 8 seconds, proceed to next step
+    setTimeout(() => {
+      clearInterval(messageInterval);
+      setIsTrainingJohnny(false);
+      handleNext();
+    }, 8000);
+  };
 
   // Load Google Maps Script
   useEffect(() => {
@@ -195,7 +235,8 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
             phone: place.formatted_phone_number || 'Phone not available',
             hours: place.opening_hours?.isOpen?.() 
               ? `Open ${place.opening_hours.weekday_text?.[new Date().getDay()] || ''}` 
-              : 'Hours not available'
+              : 'Hours not available',
+            photo_url: place.photos?.[0]?.getUrl({ maxWidth: 400, maxHeight: 400 })
           };
           
           console.log('✅ Fetched business data for display:', result);
@@ -242,6 +283,7 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
             height: 600,
             html_attributions: photo.html_attributions || []
           })) || [],
+          photo_urls: place.photos?.slice(0, 5).map(photo => photo.getUrl({ maxWidth: 800, maxHeight: 600 })) || [],
           rating: place.rating || business.rating,
           reviews: place.reviews?.slice(0, 5).map(review => ({
             text: review.text || '',
@@ -318,7 +360,7 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
   }, [state.businessDetails]);
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden px-6 md:px-8 py-6">
+    <div className="w-full h-full flex flex-col px-4 lg:px-6 py-3 overflow-hidden">
       <StepHeader 
         step="01" 
         title="Find Your Business" 
@@ -328,24 +370,25 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
 
       <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 overflow-hidden">
         {/* Left Col: Search & Results (Scrollable List) */}
-        <div className="flex-1 flex flex-col min-h-0 max-w-[45%]">
+        <div className="flex-1 flex flex-col min-h-0 lg:w-[45%]">
           {/* Location Status Banner */}
           {!GOOGLE_MAPS_API_KEY && (
-            <div className="mb-3 bg-orange-50 border border-orange-200 rounded-xl p-3 text-xs text-orange-700">
-              ⚠️ Google Maps API key is missing. Please add it to enable business search.
+            <div className="mb-2 bg-orange-50 border border-orange-200 rounded-lg p-2 text-[10px] text-orange-700 flex items-start gap-1.5">
+              <span>⚠️</span>
+              <span>API key missing</span>
             </div>
           )}
           
           {locationError && !userLocation && (
-            <div className="mb-3 bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Navigation size={16} className="text-blue-600" />
-                <span className="text-xs text-blue-700">Enable location for better search results</span>
+            <div className="mb-2 bg-blue-50 border border-blue-200 rounded-lg p-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <Navigation size={14} className="text-blue-600 shrink-0" />
+                <span className="text-[10px] text-blue-700">Enable location</span>
               </div>
               <button 
                 onClick={requestUserLocation}
                 disabled={isLoadingLocation}
-                className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50"
+                className="text-[10px] font-bold text-blue-600 hover:underline disabled:opacity-50"
               >
                 {isLoadingLocation ? 'Loading...' : 'Enable'}
               </button>
@@ -353,17 +396,15 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
           )}
 
           {userLocation && (
-            <div className="mb-3 bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
-              <Navigation size={16} className="text-green-600" />
-              <span className="text-xs text-green-700 font-medium">
-                ✓ Location enabled - showing nearby businesses
-              </span>
+            <div className="mb-2 bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-1.5">
+              <Navigation size={14} className="text-green-600 shrink-0" />
+              <span className="text-[10px] text-green-700 font-medium">✓ Location enabled</span>
             </div>
           )}
 
-          <div className="relative mb-3 group flex-shrink-0">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              {isSearching ? <Loader2 className="animate-spin text-brand-600" size={18}/> : <Search className="text-gray-400" size={18}/>}
+          <div className="relative mb-2 group flex-shrink-0">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+              {isSearching ? <Loader2 className="animate-spin text-brand-600" size={16}/> : <Search className="text-gray-400" size={16}/>}
             </div>
             <input
               type="text"
@@ -372,42 +413,46 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
                 setState({...state, businessName: e.target.value});
                 if(e.target.value.length < 3) setState(prev => ({...prev, businessDetails: null}));
               }}
-              placeholder="e.g. Downtown Dental Care"
-              className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-base focus:ring-4 focus:ring-brand-100 focus:border-brand-500 outline-none shadow-sm transition-all placeholder:text-gray-300"
+              placeholder="Search your business..."
+              className="w-full pl-10 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-100 focus:border-brand-500 outline-none transition-all placeholder:text-gray-400"
               autoFocus
             />
           </div>
 
-          {/* Scrollable Results List - Independent Scroll */}
-          <div className="flex-1 overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+          {/* Scrollable Results List */}
+          <div className="flex-1 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar min-h-0">
             {searchResults.length > 0 ? (
               searchResults.map((result) => (
                 <div 
                   key={result.id} 
                   onClick={() => handleBusinessSelect(result)}
-                  className={`p-3.5 rounded-xl cursor-pointer transition-all border flex items-center gap-3 group ${
+                  className={`p-2.5 rounded-lg cursor-pointer transition-all border flex items-center gap-2.5 ${
                     state.businessDetails?.place_id === result.id 
-                    ? 'bg-brand-50 border-brand-500 shadow-sm' 
-                    : 'bg-white border-gray-50 hover:border-brand-200 hover:shadow-sm'
+                    ? 'bg-brand-50 border-brand-400 ring-1 ring-brand-200' 
+                    : 'bg-white border-gray-200 hover:border-brand-300 hover:bg-gray-50'
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                    state.businessDetails?.place_id === result.id ? 'bg-brand-500 text-white' : 'bg-brand-100 text-brand-600'
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors overflow-hidden ${
+                    state.businessDetails?.place_id === result.id ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-600'
                   }`}>
-                    <Store size={16} />
+                    {result.photo_url ? (
+                      <img src={result.photo_url} alt={result.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Store size={15} className={state.businessDetails?.place_id === result.id ? 'text-white' : 'text-brand-600'} />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-900 text-sm truncate">{result.name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5 truncate">{result.address}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex items-center text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                        <Star size={8} className="fill-orange-500 mr-1" /> {result.rating}
+                    <div className="font-bold text-gray-900 text-xs leading-tight truncate">{result.name}</div>
+                    <div className="text-[10px] text-gray-500 truncate mt-0.5">{result.address}</div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className="flex items-center text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
+                        <Star size={8} className="fill-orange-500 mr-0.5" /> {result.rating}
                       </div>
-                      <div className="text-[10px] text-gray-400 font-medium">• {result.type}</div>
+                      <span className="text-[9px] text-gray-400">• {result.type}</span>
                     </div>
                   </div>
                   {state.businessDetails?.place_id === result.id && (
-                    <div className="w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center text-white animate-zoom-in">
+                    <div className="w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0">
                       <Check size={12} strokeWidth={3} />
                     </div>
                   )}
@@ -415,20 +460,13 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
               ))
             ) : (
               state.businessName.length > 0 && !isSearching && (
-                <div className="text-center py-8 text-gray-400">
-                  <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Search size={18} />
+                <div className="text-center py-6 text-gray-400">
+                  <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Search size={16} />
                   </div>
-                  <p className="text-xs mb-2">No results found.</p>
-                  <p className="text-[10px] text-gray-500 mb-2">Try:</p>
-                  <ul className="text-[10px] text-gray-500 space-y-1 mb-3">
-                    <li>• Different search terms</li>
-                    <li>• Enabling location services</li>
-                    <li>• Checking spelling</li>
-                  </ul>
+                  <p className="text-xs font-medium mb-2">No results found</p>
                   <button 
                     onClick={() => {
-                      // Allow manual entry by setting a placeholder business
                       const manualBusiness: SearchResult = {
                         id: 'manual-' + Date.now(),
                         name: state.businessName,
@@ -437,13 +475,14 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
                         reviews: 0,
                         type: 'Business',
                         phone: 'Phone to be added',
-                        hours: 'Hours to be added'
+                        hours: 'Hours to be added',
+                        photo_url: undefined
                       };
                       handleBusinessSelect(manualBusiness);
                     }}
-                    className="text-brand-600 font-bold text-xs mt-1 hover:underline"
+                    className="text-brand-600 font-bold text-xs hover:underline"
                   >
-                    Continue with "{state.businessName}"
+                    Continue with \"{state.businessName}\"
                   </button>
                 </div>
               )
@@ -451,127 +490,237 @@ const StepOne: React.FC<StepProps> = ({ state, setState, handleNext, handleBack 
           </div>
         </div>
 
-        {/* Right Col: Details Card (Preview) - Fits Viewport */}
-        <div className="flex-1 flex flex-col min-h-0 max-w-[45%]">
-          <div className="h-full max-h-[600px] bg-white rounded-3xl border border-gray-200 shadow-xl shadow-brand-900/5 overflow-hidden flex flex-col">
+        {/* Right Col: Details Card - Clean Preview */}
+        <div className="flex-1 flex flex-col min-h-0 lg:w-[55%]">
+          <div className="h-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
             {state.businessDetails ? (
-              <div className="flex flex-col h-full animate-fade-in-up">
-                {/* Map Placeholder */}
-                <div className="h-28 bg-gray-100 relative w-full overflow-hidden flex-shrink-0">
-                  <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                    <MapIcon size={24} className="text-gray-300" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent">
-                    <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
-                      <MapPin size={10} className="fill-white" /> 
-                      <span className="truncate">{state.businessDetails.formatted_address}</span>
+              <div className="flex flex-col h-full animate-fade-in-up overflow-hidden">
+                {/* Business Image Header */}
+                <div className="h-24 bg-gradient-to-br from-gray-100 to-gray-200 relative w-full flex-shrink-0 overflow-hidden">
+                  {state.businessDetails.photo_urls?.[0] ? (
+                    <img 
+                      src={state.businessDetails.photo_urls[0]} 
+                      alt={state.businessDetails.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Store size={32} className="text-gray-400" />
                     </div>
-                  </div>
+                  )}
                 </div>
 
-                <div className="p-4 flex-1 flex flex-col overflow-y-auto">
-                  <div className="mb-3">
-                    <h3 className="text-sm font-bold text-gray-900 mb-1 leading-tight">{state.businessDetails.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1 flex-wrap">
-                      <span className="bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-bold text-[10px]">{state.businessDetails.types?.[0]?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Business'}</span>
-                      <span className="flex items-center gap-1 text-orange-500 font-bold text-[10px]">
-                        {state.businessDetails.rating} <Star size={8} className="fill-orange-500" /> ({state.businessDetails.userRatingsTotal} reviews)
-                      </span>
-                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${state.businessDetails.isOpen ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                        {state.businessDetails.isOpen ? 'Open Now' : 'Closed'}
-                      </span>
+                <div className="p-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar">
+                  {/* Business Header */}
+                  <div className="mb-4 pb-4 border-b border-gray-100">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="text-base font-bold text-gray-900 leading-tight flex-1">{state.businessDetails.name}</h3>
+                      {state.businessDetails.isOpen && (
+                        <span className="px-2 py-1 rounded-md font-bold text-[10px] bg-green-50 text-green-700 shrink-0">
+                          Operational
+                        </span>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="space-y-2 mb-3">
-                    {/* Phone */}
-                    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-gray-500 shadow-sm shrink-0">
-                        <Phone size={14} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Phone</div>
-                        <div className="font-medium text-gray-900 text-xs truncate">{state.businessDetails.phone}</div>
-                      </div>
-                    </div>
-
-                    {/* Website */}
-                    {state.businessDetails.website && (
-                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-gray-500 shadow-sm shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Website</div>
-                          <a href={state.businessDetails.website} target="_blank" rel="noopener noreferrer" className="font-medium text-brand-600 text-xs truncate block hover:underline">{state.businessDetails.website}</a>
-                        </div>
-                      </div>
+                    {state.businessDetails.formatted_address && (
+                      <div className="text-xs text-gray-500 mb-2">{state.businessDetails.formatted_address}</div>
                     )}
-
-                    {/* Today's Hours */}
-                    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-gray-500 shadow-sm shrink-0">
-                        <Clock size={14} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Today's Hours</div>
-                        <div className="font-medium text-gray-900 text-xs truncate">{state.businessDetails.openingHours?.weekday_text?.[new Date().getDay()] || 'Hours not available'}</div>
-                      </div>
-                    </div>
-
-                    {/* All Week Hours */}
-                    {state.businessDetails.openingHours?.weekday_text && (
-                      <div className="p-2 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-1.5">Weekly Schedule</div>
-                        <div className="space-y-0.5">
-                          {state.businessDetails.openingHours.weekday_text.map((hours, idx) => (
-                            <div key={idx} className="text-[10px] text-gray-700 font-medium">
-                              {hours}
-                            </div>
+                    {(state.businessDetails.rating > 0 || state.businessDetails.userRatingsTotal > 0) && (
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              size={12} 
+                              className={i < Math.round(state.businessDetails.rating) ? 'fill-orange-400 text-orange-400' : 'fill-gray-200 text-gray-200'} 
+                            />
                           ))}
                         </div>
+                        <span className="text-xs font-bold text-gray-900">{state.businessDetails.rating}</span>
+                        <span className="text-xs text-gray-500">{state.businessDetails.userRatingsTotal} reviews</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Information Sections */}
+                  <div className="space-y-3">
+                    {/* Address Section */}
+                    {state.businessDetails.formatted_address && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                          <MapPin size={16} className="text-brand-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Address</div>
+                          <div className="text-xs text-gray-900 font-medium leading-relaxed">{state.businessDetails.formatted_address}</div>
+                        </div>
                       </div>
                     )}
 
-                    {/* Customer Reviews */}
-                    {state.businessDetails.reviews && state.businessDetails.reviews.length > 0 && (
-                      <div className="p-2 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-2">Recent Reviews</div>
-                        <div className="space-y-2">
-                          {state.businessDetails.reviews.slice(0, 3).map((review, idx) => (
-                            <div key={idx} className="bg-white p-2 rounded-lg">
-                              <div className="flex items-center gap-2 mb-1">
-                                <img src={review.profile_photo_url} alt={review.author_name} className="w-5 h-5 rounded-full" />
-                                <span className="text-[10px] font-bold text-gray-900">{review.author_name}</span>
-                                <span className="flex items-center gap-0.5 text-orange-500 text-[9px] ml-auto">
-                                  {review.rating} <Star size={8} className="fill-orange-500" />
-                                </span>
+                    {/* Industry Section */}
+                    {state.businessDetails.types && state.businessDetails.types.length > 0 && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-600"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Industry</div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {state.businessDetails.types.slice(0, 3).map((type, idx) => (
+                              <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-[10px] font-medium">
+                                {type.replace(/_/g, ' ')}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hours Section */}
+                    {state.businessDetails.openingHours?.weekday_text && state.businessDetails.openingHours.weekday_text.length > 0 && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                          <Clock size={16} className="text-brand-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Hours</div>
+                          <div className="space-y-0.5">
+                            {state.businessDetails.openingHours.weekday_text.map((hours, idx) => (
+                              <div key={idx} className="text-[10px] text-gray-700 font-medium leading-relaxed">
+                                {hours}
                               </div>
-                              <p className="text-[10px] text-gray-600 line-clamp-2">{review.text}</p>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Phone Section */}
+                    {state.businessDetails.phone && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                          <Phone size={16} className="text-brand-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Phone</div>
+                          <div className="text-xs text-gray-900 font-semibold">{state.businessDetails.phone}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Website Section */}
+                    {state.businessDetails.website && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-600"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Website</div>
+                          <a href={state.businessDetails.website} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 font-semibold truncate block hover:underline">
+                            {state.businessDetails.website.replace(/^https?:\/\/(www\.)?/, '')}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Description Section */}
+                    {state.businessDetails.businessDescription && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-600"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Description</div>
+                          <div className="text-xs text-gray-700 leading-relaxed">{state.businessDetails.businessDescription}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Google Places ID */}
+                    {state.businessDetails.place_id && (
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Google Places ID</div>
+                          <div className="text-[10px] text-gray-600 font-mono break-all">{state.businessDetails.place_id}</div>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-auto pt-3 sticky bottom-0 bg-white border-t border-gray-100">
+                  {/* Action Button */}
+                  <div className="mt-auto pt-4">
                     <button 
-                      onClick={handleNext}
-                      className="w-full btn-primary-custom py-2.5 font-bold text-sm rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                      onClick={handleTrainJohnny}
+                      disabled={isTrainingJohnny}
+                      className="w-full btn-primary-custom py-2.5 font-bold text-sm rounded-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Confirm & Continue <ArrowLeft size={14} className="rotate-180" />
+                      {isTrainingJohnny ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          Training Johnny...
+                        </>
+                      ) : (
+                        <>
+                          Let's Train Johnny 
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
+
+                {/* Training Overlay */}
+                {isTrainingJohnny && (
+                  <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-50 rounded-lg">
+                    <div className="text-center px-6">
+                      <div className="relative mb-6">
+                        <div className="w-20 h-20 mx-auto">
+                          <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              stroke="currentColor"
+                              strokeWidth="8"
+                              fill="none"
+                              className="text-gray-200"
+                            />
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              stroke="currentColor"
+                              strokeWidth="8"
+                              fill="none"
+                              strokeDasharray="283"
+                              strokeDashoffset="75"
+                              strokeLinecap="round"
+                              className="text-brand-600"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-2xl">🤖</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-gray-900">Training Johnny</h3>
+                        <p className="text-sm text-gray-600 max-w-xs mx-auto animate-pulse">
+                          {trainingMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50/50">
-                <div className="w-14 h-14 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center mb-3">
-                  <Layout size={24} className="text-gray-300" />
+              <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-50 rounded-lg border border-gray-200 flex items-center justify-center mb-3">
+                  <Layout size={22} className="text-gray-400" />
                 </div>
-                <h3 className="text-base font-bold text-gray-900 mb-1.5">Business Details</h3>
-                <p className="text-xs text-gray-500 max-w-[180px]">Select a business from the search results to preview details here.</p>
+                <h3 className="text-sm font-bold text-gray-900 mb-1">Business Details</h3>
+                <p className="text-xs text-gray-500 max-w-[180px]">Select a business to preview details</p>
               </div>
             )}
           </div>

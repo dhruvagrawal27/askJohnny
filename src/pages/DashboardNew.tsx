@@ -249,56 +249,28 @@ const DashboardNew = () => {
     <div className="min-h-screen" style={{
       background: 'radial-gradient(125% 125% at 50% 10%, #FFFFFF 35%, #E9D5FF 75%, #C4B5FD 100%)'
     }}>
-      {/* Top Navbar - Landing Page Style */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <span className="text-brand-700 font-bold text-xl tracking-tight">Ask Johnny</span>
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 text-xs font-bold rounded-full">
-              Dashboard
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/dashboard/settings')}
-              className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors"
-              title="Settings"
-            >
-              <Settings className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => signOut()}
-              className="px-5 py-2.5 btn-secondary-custom flex items-center gap-2 text-sm font-semibold"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
-      <div className="pt-24 px-6 lg:px-12 pb-12 max-w-7xl mx-auto">
+      <div className="pt-8 px-4 lg:px-8 pb-8 max-w-6xl mx-auto">
         {/* Welcome Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-10"
+          className="mb-6"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
             <div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-[#0C0F1A] mb-2 leading-tight">
-                Welcome back, <span className="text-gradient">{user?.firstName || 'there'}</span>
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1 leading-tight">
+                Welcome back, <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">{user?.firstName || 'there'}</span>
               </h1>
-              <p className="text-[#6A6F7A] text-lg">
+              <p className="text-gray-600 text-sm">
                 {businessName !== "Not set" ? businessName : "Your AI voice assistant dashboard"}
               </p>
             </div>
             {trainingStatus === "completed" && (
-              <div className="flex items-center gap-2 px-5 py-3 bg-green-50 border border-green-200/60 rounded-full shadow-sm">
-                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-green-700 font-bold text-sm">Agent Active</span>
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200/60 rounded-full shadow-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-700 font-bold text-xs">Agent Active</span>
               </div>
             )}
           </div>
@@ -309,20 +281,20 @@ const DashboardNew = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
         >
           {/* Business Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-6 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#A26BFF] to-[#7A57FF] flex items-center justify-center shadow-lg">
-                  <Building2 className="text-white" size={20} />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl opacity-60 blur-md"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-4 hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#A26BFF] to-[#7A57FF] flex items-center justify-center shadow-lg">
+                  <Building2 className="text-white" size={16} />
                 </div>
-                <Sparkles className="w-5 h-5 text-purple-400" />
+                <Sparkles className="w-4 h-4 text-purple-400" />
               </div>
-              <h3 className="text-[#6A6F7A] text-sm font-semibold mb-1">Business Name</h3>
-              <p className="text-[#0C0F1A] text-lg font-bold truncate" title={businessName}>
+              <h3 className="text-gray-500 text-xs font-semibold mb-1">Business Name</h3>
+              <p className="text-gray-900 text-sm font-bold truncate" title={businessName}>
                 {pretty(businessName, "—")}
               </p>
             </div>
@@ -330,10 +302,10 @@ const DashboardNew = () => {
 
           {/* Status Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-6 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
+            <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl opacity-60 blur-md"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-4 hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-lg ${
                   trainingStatus === "completed" 
                     ? "bg-gradient-to-br from-green-400 to-green-600" 
                     : trainingStatus === "training"
@@ -341,17 +313,17 @@ const DashboardNew = () => {
                     : "bg-gradient-to-br from-gray-300 to-gray-500"
                 }`}>
                   {trainingStatus === "completed" ? (
-                    <CheckCircle2 className="text-white" size={20} />
+                    <CheckCircle2 className="text-white" size={16} />
                   ) : trainingStatus === "training" ? (
-                    <Loader2 className="text-white animate-spin" size={20} />
+                    <Loader2 className="text-white animate-spin" size={16} />
                   ) : (
-                    <Clock className="text-white" size={20} />
+                    <Clock className="text-white" size={16} />
                   )}
                 </div>
-                <Activity className="w-5 h-5 text-green-400" />
+                <Activity className="w-4 h-4 text-green-400" />
               </div>
-              <h3 className="text-[#6A6F7A] text-sm font-semibold mb-1">Agent Status</h3>
-              <p className="text-[#0C0F1A] text-lg font-bold">
+              <h3 className="text-gray-500 text-xs font-semibold mb-1">Agent Status</h3>
+              <p className="text-gray-900 text-sm font-bold">
                 {trainingStatus === "completed"
                   ? "Active"
                   : trainingStatus === "training"
@@ -365,16 +337,16 @@ const DashboardNew = () => {
 
           {/* Agent ID Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-6 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-lg">
-                  <BadgeCheck className="text-white" size={20} />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-2xl opacity-60 blur-md"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-4 hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-lg">
+                  <BadgeCheck className="text-white" size={16} />
                 </div>
-                <Zap className="w-5 h-5 text-indigo-400" />
+                <Zap className="w-4 h-4 text-indigo-400" />
               </div>
-              <h3 className="text-[#6A6F7A] text-sm font-semibold mb-1">AI Agent</h3>
-              <p className="text-[#0C0F1A] text-lg font-bold truncate">
+              <h3 className="text-gray-500 text-xs font-semibold mb-1">AI Agent</h3>
+              <p className="text-gray-900 text-sm font-bold truncate">
                 {userData?.agent_id ? "Connected" : "Not Set"}
               </p>
             </div>
@@ -382,16 +354,16 @@ const DashboardNew = () => {
 
           {/* Phone Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-rose-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-6 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center shadow-lg">
-                  <Phone className="text-white" size={20} />
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-rose-100 rounded-2xl opacity-60 blur-md"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-4 hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center shadow-lg">
+                  <Phone className="text-white" size={16} />
                 </div>
-                <PhoneCall className="w-5 h-5 text-pink-400" />
+                <PhoneCall className="w-4 h-4 text-pink-400" />
               </div>
-              <h3 className="text-[#6A6F7A] text-sm font-semibold mb-1">Phone Number</h3>
-              <p className="text-[#0C0F1A] text-lg font-bold truncate">
+              <h3 className="text-gray-500 text-xs font-semibold mb-1">Phone Number</h3>
+              <p className="text-gray-900 text-sm font-bold truncate">
                 {userData?.assigned_phone_number || "Pending"}
               </p>
             </div>
@@ -404,26 +376,26 @@ const DashboardNew = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8"
+            className="mb-6"
           >
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-              <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-8">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl opacity-60 blur-md"></div>
+              <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#0C0F1A] flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A26BFF] to-[#7A57FF] flex items-center justify-center">
-                        <PhoneCall className="text-white" size={20} />
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                        <PhoneCall className="text-white" size={16} />
                       </div>
                       Quick Call
                     </h3>
-                    <p className="text-[#6A6F7A]">
+                    <p className="text-gray-600 text-sm">
                       Make an instant outbound call using your AI agent
                     </p>
                   </div>
                   <button
                     onClick={() => setShowQuickCall(!showQuickCall)}
-                    className={`px-6 py-3 rounded-xl font-bold transition-all text-sm ${
+                    className={`px-4 py-2 rounded-lg font-bold transition-all text-xs whitespace-nowrap ${
                       showQuickCall 
                         ? 'btn-secondary-custom' 
                         : 'btn-primary-custom shadow-lg'
@@ -434,13 +406,13 @@ const DashboardNew = () => {
                 </div>
                 
                 {showQuickCall && (
-                  <div className="space-y-4 animate-fade-in-up">
+                  <div className="space-y-3 animate-fade-in-up">
                     <div>
-                      <label htmlFor="phoneNumber" className="block text-[#0C0F1A] text-sm font-bold mb-2">
+                      <label htmlFor="phoneNumber" className="block text-gray-900 text-xs font-bold mb-1.5">
                         Phone Number (US/Canada only)
                       </label>
                       {/* Landing Page Style Input */}
-                      <div className="bg-white p-2 rounded-2xl shadow-md shadow-brand-100/50 flex items-center border border-gray-100">
+                      <div className="bg-white p-1.5 rounded-xl shadow-md shadow-brand-100/50 flex items-center border border-gray-100">
                         <div className="flex-1 relative">
                           <Input
                             id="phoneNumber"
@@ -448,7 +420,7 @@ const DashboardNew = () => {
                             placeholder="(555) 123-4567"
                             value={phoneNumber}
                             onChange={handlePhoneChange}
-                            className={`border-0 px-4 py-3 rounded-xl text-[#0C0F1A] placeholder-gray-400 focus:outline-none focus:ring-0 ${
+                            className={`border-0 px-3 py-2 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 ${
                               phoneNumber && !isValidNumber 
                                 ? 'bg-red-50' 
                                 : phoneNumber && isValidNumber 
@@ -457,11 +429,11 @@ const DashboardNew = () => {
                             }`}
                           />
                           {phoneNumber && (
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
                               {isValidNumber ? (
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
                               ) : (
-                                <AlertCircle className="h-5 w-5 text-red-500" />
+                                <AlertCircle className="h-4 w-4 text-red-500" />
                               )}
                             </div>
                           )}
@@ -469,43 +441,43 @@ const DashboardNew = () => {
                         <button
                           onClick={initiateQuickCall}
                           disabled={!isValidNumber || isCalling}
-                          className="btn-primary-custom px-6 py-3 font-medium transition-opacity hover:opacity-90 text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="btn-primary-custom px-4 py-2 font-medium transition-opacity hover:opacity-90 text-xs whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                         >
                           {isCalling ? (
                             <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
                               Calling...
                             </>
                           ) : (
                             <>
-                              <PhoneCall className="h-4 w-4" />
+                              <PhoneCall className="h-3.5 w-3.5" />
                               Call
                             </>
                           )}
                         </button>
                       </div>
                       {phoneNumber && !isValidNumber && (
-                        <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
-                          <AlertCircle size={12} />
+                        <p className="text-[10px] text-red-600 mt-1.5 flex items-center gap-1">
+                          <AlertCircle size={10} />
                           Please enter a valid US or Canadian phone number
                         </p>
                       )}
                     </div>
 
                     {callError && (
-                      <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200/60 rounded-xl">
-                        <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
-                        <p className="text-sm text-red-700 font-medium">{callError}</p>
+                      <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200/60 rounded-lg">
+                        <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
+                        <p className="text-xs text-red-700 font-medium">{callError}</p>
                       </div>
                     )}
 
                     {callResult && (
-                      <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200/60 rounded-xl">
-                        <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200/60 rounded-lg">
+                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-bold text-green-700 mb-1">Call initiated successfully!</p>
-                          <p className="text-xs text-green-600 font-mono">Call ID: {callResult.id}</p>
-                          <p className="text-xs text-green-600 mt-0.5">Status: <span className="font-bold">{callResult.status}</span></p>
+                          <p className="text-xs font-bold text-green-700 mb-0.5">Call initiated successfully!</p>
+                          <p className="text-[10px] text-green-600 font-mono">Call ID: {callResult.id}</p>
+                          <p className="text-[10px] text-green-600 mt-0.5">Status: <span className="font-bold">{callResult.status}</span></p>
                         </div>
                       </div>
                     )}
@@ -514,52 +486,52 @@ const DashboardNew = () => {
               </div>
             </div>
           </motion.div>
-        )}
+        )}  
 
         {/* Business Details - Two Column Layout */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6"
         >
           {/* Business Information Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-blue-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-8">
-              <h3 className="text-2xl font-bold text-[#0C0F1A] flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                  <Building2 className="text-white" size={20} />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl opacity-60 blur-md"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-5">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <Building2 className="text-white" size={16} />
                 </div>
                 Business Information
               </h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <Info className="text-gray-400 mt-1" size={18} />
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <Info className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Business Name</p>
-                    <p className="text-[#0C0F1A] font-bold truncate">{businessName}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Business Name</p>
+                    <p className="text-gray-900 text-sm font-bold truncate">{businessName}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <MapPin className="text-gray-400 mt-1" size={18} />
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <MapPin className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Address</p>
-                    <p className="text-[#0C0F1A] font-medium">{pretty(userData?.businessDetails?.data?.address)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Address</p>
+                    <p className="text-gray-900 text-sm font-medium">{pretty(userData?.businessDetails?.data?.address)}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <Phone className="text-gray-400 mt-1" size={18} />
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <Phone className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Phone</p>
-                    <p className="text-[#0C0F1A] font-bold">{pretty(userData?.businessDetails?.data?.phone)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Phone</p>
+                    <p className="text-gray-900 text-sm font-bold">{pretty(userData?.businessDetails?.data?.phone)}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <Globe className="text-gray-400 mt-1" size={18} />
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <Globe className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Website</p>
-                    <p className="text-gradient font-bold hover:underline cursor-pointer truncate">{pretty(userData?.businessDetails?.data?.website)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Website</p>
+                    <p className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent text-sm font-bold hover:underline cursor-pointer truncate">{pretty(userData?.businessDetails?.data?.website)}</p>
                   </div>
                 </div>
               </div>
@@ -568,41 +540,41 @@ const DashboardNew = () => {
 
           {/* Technical Details Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-pink-100 rounded-[1.75rem] opacity-60 blur-md"></div>
-            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-[1.75rem] p-8">
-              <h3 className="text-2xl font-bold text-[#0C0F1A] flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
-                  <Settings className="text-white" size={20} />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-pink-100 rounded-2xl opacity-60 blur-md"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm border border-[#ECE8FF]/40 rounded-2xl p-5">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <Settings className="text-white" size={16} />
                 </div>
                 Technical Configuration
               </h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <BadgeCheck className="text-gray-400 mt-1" size={18} />
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <BadgeCheck className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Agent ID</p>
-                    <p className="text-[#0C0F1A] font-mono text-sm truncate">{pretty(userData?.agent_id)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Agent ID</p>
+                    <p className="text-gray-900 font-mono text-xs truncate">{pretty(userData?.agent_id)}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <Sparkles className="text-gray-400 mt-1" size={18} />
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <Sparkles className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Agent Name</p>
-                    <p className="text-[#0C0F1A] font-bold">{pretty(userData?.agent_name)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Agent Name</p>
+                    <p className="text-gray-900 text-sm font-bold">{pretty(userData?.agent_name)}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <Activity className="text-gray-400 mt-1" size={18} />
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <Activity className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Agent Status</p>
-                    <p className="text-green-600 font-bold">{pretty(userData?.agent_status)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Agent Status</p>
+                    <p className="text-green-600 text-sm font-bold">{pretty(userData?.agent_status)}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                  <Phone className="text-gray-400 mt-1" size={18} />
+                <div className="flex items-start gap-2 p-3 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                  <Phone className="text-purple-400 mt-0.5" size={14} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#6A6F7A] mb-1 font-semibold">Phone Number ID</p>
-                    <p className="text-[#0C0F1A] font-mono text-sm truncate">{pretty(userData?.phone_id)}</p>
+                    <p className="text-[10px] text-gray-500 mb-0.5 font-semibold">Phone Number ID</p>
+                    <p className="text-gray-900 font-mono text-xs truncate">{pretty(userData?.phone_id)}</p>
                   </div>
                 </div>
               </div>

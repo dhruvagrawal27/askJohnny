@@ -232,7 +232,9 @@ export const DashboardIntegrations: React.FC = () => {
     return (
       <div className="p-8 space-y-6">
         <div className="text-center py-8">
-          <Loader2 className="h-12 w-12 text-gray-300 mx-auto mb-4 animate-spin" />
+          <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="h-8 w-8 text-white animate-spin" />
+          </div>
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -243,7 +245,7 @@ export const DashboardIntegrations: React.FC = () => {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Integrations</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Integrations</h1>
         <p className="text-muted-foreground mt-1">
           Connect your calendar and other services to enable advanced features for your AI assistant.
         </p>
@@ -419,12 +421,16 @@ export const DashboardIntegrations: React.FC = () => {
             <CardContent>
               {isLoading ? (
                 <div className="text-center py-8">
-                  <Loader2 className="h-12 w-12 text-gray-300 mx-auto mb-4 animate-spin" />
+                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4">
+                    <Loader2 className="h-8 w-8 text-white animate-spin" />
+                  </div>
                   <p className="text-muted-foreground">Loading integrations...</p>
                 </div>
               ) : integrations.length === 0 ? (
                 <div className="text-center py-8">
-                  <Settings className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4">
+                    <Settings className="h-8 w-8 text-white" />
+                  </div>
                   <p className="text-muted-foreground">No integrations connected yet.</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     Connect your first integration to get started.

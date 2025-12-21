@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Sun, Clock as ClockIcon, CalendarClock, Check, X } from 'lucide-react';
+import { ArrowLeft, Sun, Clock as ClockIcon, CalendarClock, Check, X, Sparkles } from 'lucide-react';
 import { StepProps } from './types';
-import { StepHeader, ContentContainer } from './SharedComponents';
+import { StepHeader } from './SharedComponents';
 
 interface DaySchedule {
   enabled: boolean;
@@ -35,23 +35,20 @@ const StepOneD: React.FC<StepProps> = ({ state, setState, handleNext, handleBack
       id: 'business_hours',
       icon: Sun,
       title: 'Business Hours Only',
-      description: "Johnny will answer your calls during your specified business hours.",
-      color: 'orange',
+      description: "Johnny answers during your business hours. After hours? Voicemail time.",
       recommended: true
     },
     {
       id: '24_7',
       icon: ClockIcon,
       title: '24/7 Coverage',
-      description: "Johnny will answer your calls 24 hours a day, 7 days a week.",
-      color: 'blue'
+      description: "Johnny never sleeps. Literally. He'll answer calls at 3 AM while you're dreaming.",
     },
     {
       id: 'custom',
       icon: CalendarClock,
       title: 'Custom Schedule',
-      description: "Create a custom schedule with different hours for different days of the week.",
-      color: 'purple'
+      description: "Get fancy with different hours for each day. Johnny adapts to your schedule.",
     }
   ];
 
@@ -109,66 +106,67 @@ const StepOneD: React.FC<StepProps> = ({ state, setState, handleNext, handleBack
     handleNext();
   };
 
-  const getColorClasses = (color: string, isSelected: boolean) => {
-    const colors = {
-      orange: {
-        border: isSelected ? 'border-orange-500' : 'border-gray-200',
-        bg: isSelected ? 'bg-orange-50' : 'bg-white',
-        icon: isSelected ? 'bg-orange-500' : 'bg-orange-100',
-        iconText: isSelected ? 'text-white' : 'text-orange-600',
-        badge: 'bg-orange-100 text-orange-700',
-        check: 'bg-orange-500'
+  const getScheduleInfo = () => {
+    if (!selectedSchedule) return null;
+    
+    const info = {
+      business_hours: {
+        title: "Smart Choice!",
+        description: "Johnny will handle calls during business hours. After hours, he'll take messages or let voicemail handle it. Perfect for work-life balance.",
+        icon: Sun
       },
-      blue: {
-        border: isSelected ? 'border-blue-500' : 'border-gray-200',
-        bg: isSelected ? 'bg-blue-50' : 'bg-white',
-        icon: isSelected ? 'bg-blue-500' : 'bg-blue-100',
-        iconText: isSelected ? 'text-white' : 'text-blue-600',
-        badge: 'bg-blue-100 text-blue-700',
-        check: 'bg-blue-500'
+      '24_7': {
+        title: "Always On Duty!",
+        description: "Johnny is ready to answer calls 24/7, even at 3 AM. Your customers will never hear a voicemail again. Johnny doesn't need sleep, coffee, or bathroom breaks.",
+        icon: ClockIcon
       },
-      purple: {
-        border: isSelected ? 'border-purple-500' : 'border-gray-200',
-        bg: isSelected ? 'bg-purple-50' : 'bg-white',
-        icon: isSelected ? 'bg-purple-500' : 'bg-purple-100',
-        iconText: isSelected ? 'text-white' : 'text-purple-600',
-        badge: 'bg-purple-100 text-purple-700',
-        check: 'bg-purple-500'
+      custom: {
+        title: "Schedule Maestro!",
+        description: "You've configured a custom schedule. Johnny will adapt to your specific hours for each day of the week. Flexibility at its finest.",
+        icon: CalendarClock
       }
     };
-    return colors[color as keyof typeof colors];
+    
+    return info[selectedSchedule as keyof typeof info];
   };
+
+  const scheduleInfo = getScheduleInfo();
 
   return (
     <>
       {/* Custom Schedule Modal */}
       {showCustomModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Custom Schedule</h2>
-                <p className="text-sm text-gray-500 mt-1">Set different hours for each day of the week</p>
+            <div className="relative px-6 pt-6 pb-4 bg-gradient-to-br from-brand-50 to-purple-50 border-b border-brand-100">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <CalendarClock size={20} className="text-brand-600" />
+                    <h2 className="text-xl font-bold text-gray-900">Custom Schedule</h2>
+                  </div>
+                  <p className="text-sm text-gray-600">Configure Johnny's working hours for each day</p>
+                </div>
+                <button
+                  onClick={() => setShowCustomModal(false)}
+                  className="p-2 hover:bg-white/80 rounded-lg transition-all"
+                >
+                  <X size={18} className="text-gray-500" />
+                </button>
               </div>
-              <button
-                onClick={() => setShowCustomModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X size={20} className="text-gray-500" />
-              </button>
             </div>
 
             {/* Modal Body */}
             <div className="flex-1 overflow-y-auto p-6">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {daysOfWeek.map((day) => (
                   <div
                     key={day.key}
                     className={`border-2 rounded-xl p-4 transition-all ${
                       customSchedule[day.key].enabled
-                        ? 'border-brand-200 bg-brand-50/30'
-                        : 'border-gray-200 bg-gray-50'
+                        ? 'border-brand-200 bg-gradient-to-br from-brand-50/50 to-purple-50/30 shadow-sm'
+                        : 'border-gray-200 bg-gray-50/50'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-3">
@@ -180,34 +178,34 @@ const StepOneD: React.FC<StepProps> = ({ state, setState, handleNext, handleBack
                             onChange={() => handleDayToggle(day.key)}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-100 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-brand-500 peer-checked:to-brand-600 shadow-inner"></div>
                         </label>
                         <span className="font-bold text-gray-900">{day.label}</span>
                       </div>
                       {!customSchedule[day.key].enabled && (
-                        <span className="text-sm text-gray-500 font-medium">Closed</span>
+                        <span className="text-xs text-gray-500 font-semibold px-2 py-1 bg-gray-200 rounded-md">CLOSED</span>
                       )}
                     </div>
 
                     {customSchedule[day.key].enabled && (
-                      <div className="flex items-center gap-4 ml-14">
+                      <div className="flex items-center gap-3 ml-14">
                         <div className="flex-1">
-                          <label className="text-xs text-gray-500 font-medium mb-1 block">Open</label>
+                          <label className="text-xs text-gray-600 font-semibold mb-1.5 block">Opening Time</label>
                           <input
                             type="time"
                             value={customSchedule[day.key].openTime}
                             onChange={(e) => handleTimeChange(day.key, 'openTime', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"
+                            className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all bg-white"
                           />
                         </div>
-                        <span className="text-gray-400 mt-6">→</span>
+                        <span className="text-brand-400 font-bold mt-6">→</span>
                         <div className="flex-1">
-                          <label className="text-xs text-gray-500 font-medium mb-1 block">Close</label>
+                          <label className="text-xs text-gray-600 font-semibold mb-1.5 block">Closing Time</label>
                           <input
                             type="time"
                             value={customSchedule[day.key].closeTime}
                             onChange={(e) => handleTimeChange(day.key, 'closeTime', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"
+                            className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all bg-white"
                           />
                         </div>
                       </div>
@@ -218,16 +216,16 @@ const StepOneD: React.FC<StepProps> = ({ state, setState, handleNext, handleBack
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
               <button
                 onClick={() => setShowCustomModal(false)}
-                className="flex-1 px-6 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-white hover:border-gray-400 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveCustomSchedule}
-                className="flex-1 px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-all shadow-lg hover:shadow-xl"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-bold hover:from-brand-700 hover:to-brand-800 transition-all shadow-lg hover:shadow-xl"
               >
                 Save Schedule
               </button>
@@ -236,70 +234,128 @@ const StepOneD: React.FC<StepProps> = ({ state, setState, handleNext, handleBack
         </div>
       )}
 
-      <ContentContainer>
-        <StepHeader 
-          step="04" 
-          title="When should Johnny answer calls?" 
-          subtitle="Choose when you want Johnny to answer calls for your business."
-          onBack={handleBack}
-          showBack={true}
-        />
+      {/* Main Content - Two Column Layout */}
+      <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-gray-50 to-brand-50/30 flex flex-col">
+        <div className="px-4 lg:px-6 py-3">
+          <StepHeader 
+            step="04" 
+            title="When should Johnny answer calls?" 
+            subtitle="Choose when you want Johnny to answer calls for your business."
+            onBack={handleBack}
+            showBack={true}
+          />
+        </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 overflow-y-auto pb-8">
-        <div className="w-full max-w-3xl mx-auto space-y-4">
-          {scheduleOptions.map((option) => {
-            const isSelected = selectedSchedule === option.id;
-            const colors = getColorClasses(option.color, isSelected);
-            const Icon = option.icon;
+        {/* Two Column Container */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 px-4 lg:px-6 pb-4 min-h-0 overflow-hidden">
+          {/* Left Column - Schedule Options */}
+          <div className="flex-1 lg:w-[45%] flex flex-col min-h-0 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-br from-brand-50 to-white">
+              <div className="flex items-center gap-2">
+                <ClockIcon size={20} className="text-brand-600" />
+                <h3 className="font-bold text-gray-900">Schedule Options</h3>
+              </div>
+            </div>
 
-            return (
-              <div
-                key={option.id}
-                onClick={() => handleSelectSchedule(option.id)}
-                className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${colors.border} ${colors.bg} hover:shadow-lg group`}
-              >
-                {option.recommended && (
-                  <div className={`absolute -top-2.5 left-6 px-3 py-1 rounded-full text-[10px] font-bold ${colors.badge}`}>
-                    RECOMMENDED
-                  </div>
-                )}
-                
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className={`w-12 h-12 rounded-xl ${colors.icon} ${colors.iconText} flex items-center justify-center flex-shrink-0 transition-all duration-300`}>
-                    <Icon size={24} />
-                  </div>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {scheduleOptions.map((option) => {
+                const isSelected = selectedSchedule === option.id;
+                const Icon = option.icon;
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{option.title}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{option.description}</p>
-                  </div>
+                return (
+                  <div
+                    key={option.id}
+                    onClick={() => handleSelectSchedule(option.id)}
+                    className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${
+                      isSelected 
+                        ? 'border-brand-500 bg-gradient-to-br from-brand-50 to-purple-50 shadow-md' 
+                        : 'border-gray-200 bg-white hover:border-brand-300 hover:shadow-sm'
+                    }`}
+                  >
+                    {option.recommended && (
+                      <div className="absolute -top-2 left-4 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 text-brand-700 shadow-sm">
+                        RECOMMENDED
+                      </div>
+                    )}
+                    
+                    <div className="flex items-start gap-3">
+                      {/* Icon */}
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                        isSelected 
+                          ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md' 
+                          : 'bg-brand-50 text-brand-600'
+                      }`}>
+                        <Icon size={22} />
+                      </div>
 
-                  {/* Radio/Checkmark */}
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                    isSelected ? `${colors.check} scale-100` : 'bg-gray-200 scale-90'
-                  }`}>
-                    {isSelected && <Check size={14} className="text-white" strokeWidth={3} />}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold text-gray-900 mb-1">{option.title}</h3>
+                        <p className="text-xs text-gray-600 leading-relaxed">{option.description}</p>
+                      </div>
+
+                      {/* Checkmark */}
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                        isSelected ? 'bg-brand-600 scale-100' : 'bg-gray-200 scale-90'
+                      }`}>
+                        {isSelected && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Column - Info & Continue */}
+          <div className="flex-1 lg:w-[55%] flex flex-col min-h-0">
+            <div className="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col">
+              {/* Info Section */}
+              <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+                <div className="text-center max-w-md w-full my-auto">
+                  {scheduleInfo ? (
+                    <>
+                      <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-brand-500/30">
+                        <div className="absolute inset-0 rounded-2xl bg-brand-400 opacity-30 animate-ping"></div>
+                        {React.createElement(scheduleInfo.icon, { size: 40, className: "text-white relative z-10" })}
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                        {scheduleInfo.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {scheduleInfo.description}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-6">
+                        <Sparkles size={32} className="text-gray-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">Pick a Schedule</h3>
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        Select when Johnny should be answering your business calls. He's ready when you are!
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
 
-        {/* Continue Button */}
-        <div className="w-full max-w-3xl mx-auto mt-8">
-          <button
-            onClick={handleContinue}
-            disabled={!selectedSchedule}
-            className="w-full btn-primary-custom py-4 font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          >
-            Continue <ArrowLeft size={16} className="rotate-180" />
-          </button>
+              {/* Continue Button */}
+              <div className="p-6 border-t border-gray-200 bg-gray-50">
+                <button
+                  onClick={handleContinue}
+                  disabled={!selectedSchedule}
+                  className="w-full btn-primary-custom py-3.5 font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  Continue <ArrowLeft size={16} className="rotate-180" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </ContentContainer>
     </>
   );
 };

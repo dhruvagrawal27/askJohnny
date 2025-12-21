@@ -316,11 +316,14 @@ export const DashboardAgent: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8 space-y-6">
-        <div className="text-center py-12">
-          <Loader2 className="h-12 w-12 text-primary mx-auto mb-4 animate-spin" />
-          <h2 className="text-xl font-semibold mb-2">Loading Agent Information</h2>
-          <p className="text-muted-foreground">Fetching your AI agent details...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: 'radial-gradient(125% 125% at 50% 10%, #FFFFFF 35%, #E9D5FF 75%, #C4B5FD 100%)'
+      }}>
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center animate-pulse">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          </div>
+          <p className="text-gray-900 font-semibold">Loading your agent...</p>
         </div>
       </div>
     );
@@ -330,9 +333,11 @@ export const DashboardAgent: React.FC = () => {
     return (
       <div className="p-8 space-y-6">
         <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-red-700 mb-2">Error Loading Agent</h2>
-          <p className="text-muted-foreground mb-4">{error}</p>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+            <AlertCircle className="h-8 w-8 text-white" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Agent</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
           <Button onClick={fetchAgentData} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
             Try Again
@@ -346,9 +351,11 @@ export const DashboardAgent: React.FC = () => {
     return (
       <div className="p-8 space-y-6">
         <div className="text-center py-12">
-          <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">No Agent Found</h2>
-          <p className="text-muted-foreground">Unable to load agent information</p>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+            <Bot className="h-8 w-8 text-purple-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Agent Found</h2>
+          <p className="text-gray-600">Unable to load agent information</p>
         </div>
       </div>
     );
@@ -359,18 +366,18 @@ export const DashboardAgent: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">AI Agent</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-3xl font-bold text-gray-900">AI Agent</h1>
+          <p className="text-gray-600 mt-1">
             Manage and monitor your AI assistant configuration
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="bg-green-100 text-green-700">
+          <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
             <Activity className="h-3 w-3 mr-1" />
             Active
           </Badge>
           <Button onClick={fetchAgentData} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4 mr-2 text-purple-600" />
             Refresh
           </Button>
         </div>
@@ -380,7 +387,9 @@ export const DashboardAgent: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+              <Bot className="h-4 w-4 text-white" />
+            </div>
             Agent Overview
           </CardTitle>
         </CardHeader>
@@ -421,7 +430,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Mic className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Mic className="h-4 w-4 text-white" />
+              </div>
               Voice Configuration
             </CardTitle>
           </CardHeader>
@@ -430,7 +441,7 @@ export const DashboardAgent: React.FC = () => {
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Voice ID</p>
                 <div className="flex items-center gap-2">
-                  <Volume2 className="h-4 w-4 text-primary" />
+                  <Volume2 className="h-4 w-4 text-purple-500" />
                   <span className="font-medium">{agent.voice.voiceId}</span>
                 </div>
               </div>
@@ -483,7 +494,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Brain className="h-4 w-4 text-white" />
+              </div>
               AI Model
             </CardTitle>
           </CardHeader>
@@ -568,7 +581,9 @@ export const DashboardAgent: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Phone className="h-5 w-5" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+              <Phone className="h-4 w-4 text-white" />
+            </div>
             Call Configuration
           </CardTitle>
         </CardHeader>
@@ -702,7 +717,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Database className="h-4 w-4 text-white" />
+              </div>
               Knowledge Base
               <Badge variant="secondary">
                 {knowledgeFiles.length} files available
@@ -712,11 +729,11 @@ export const DashboardAgent: React.FC = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-2">
-                <Info className="h-4 w-4 text-blue-500" />
+                <Info className="h-4 w-4 text-purple-500" />
                 <span className="text-sm text-muted-foreground">Provider: {agent.model.knowledgeBase.provider}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-green-500" />
+                <Database className="h-4 w-4 text-purple-500" />
                 <span className="text-sm text-muted-foreground">Files Available: {knowledgeFiles.length}</span>
               </div>
             </div>
@@ -754,7 +771,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 text-white" />
+              </div>
               Transcriber
             </CardTitle>
           </CardHeader>
@@ -816,7 +835,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Activity className="h-4 w-4 text-white" />
+              </div>
               Monitoring & Observability
             </CardTitle>
           </CardHeader>
@@ -855,7 +876,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Brain className="h-4 w-4 text-white" />
+              </div>
               System Prompt
             </CardTitle>
           </CardHeader>
@@ -874,7 +897,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Brain className="h-4 w-4 text-white" />
+              </div>
               Analysis Configuration
             </CardTitle>
           </CardHeader>
@@ -976,7 +1001,9 @@ export const DashboardAgent: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Phone className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <Phone className="h-4 w-4 text-white" />
+                </div>
                 Voicemail Detection
               </CardTitle>
             </CardHeader>
@@ -1015,7 +1042,9 @@ export const DashboardAgent: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-white" />
+                </div>
                 Artifact & Recording
               </CardTitle>
             </CardHeader>
@@ -1090,7 +1119,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 text-white" />
+              </div>
               Message Plan
             </CardTitle>
           </CardHeader>
@@ -1133,7 +1164,9 @@ export const DashboardAgent: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <Shield className="h-4 w-4 text-white" />
+                </div>
                 Compliance & Security
               </CardTitle>
             </CardHeader>
@@ -1185,7 +1218,9 @@ export const DashboardAgent: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Phone className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Phone className="h-4 w-4 text-white" />
+              </div>
               Keypad Input Configuration
             </CardTitle>
           </CardHeader>
@@ -1235,7 +1270,9 @@ export const DashboardAgent: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <Settings className="h-4 w-4 text-white" />
+                </div>
                 Transport Configuration
               </CardTitle>
             </CardHeader>

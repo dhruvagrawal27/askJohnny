@@ -685,7 +685,7 @@ export const DashboardKnowledgeBase: React.FC = () => {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Knowledge Base</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Knowledge Base</h1>
         <p className="text-muted-foreground mt-1">
           Upload documents to train your AI assistant with your organization's knowledge.
         </p>
@@ -724,8 +724,10 @@ export const DashboardKnowledgeBase: React.FC = () => {
                 onDrop={handleDrop}
                 onClick={openFilePicker}
               >
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4">
+                  <Upload className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Drag & drop files here
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">

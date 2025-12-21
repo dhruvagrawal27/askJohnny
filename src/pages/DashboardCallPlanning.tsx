@@ -180,12 +180,12 @@ export const DashboardCallPlanning: React.FC = () => {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-red-100 rounded-lg">
-          <Phone className="h-6 w-6 text-red-600" />
+        <div className="p-2 bg-purple-100 rounded-lg">
+          <Phone className="h-6 w-6 text-purple-600" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Call Flow Planning</h1>
-          <p className="text-muted-foreground">Design how Benny handles calls</p>
+          <h1 className="text-3xl font-bold text-gray-900">Call Flow Planning</h1>
+          <p className="text-gray-600">Design how Benny handles calls</p>
         </div>
       </div>
 

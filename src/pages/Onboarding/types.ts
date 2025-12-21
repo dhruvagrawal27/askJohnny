@@ -1,8 +1,11 @@
+import { LucideIcon } from 'lucide-react';
+
 export interface Category {
   id: string;
   label: string;
   description: string;
   questions: string[];
+  icon?: LucideIcon;
 }
 
 export interface SearchResult {
@@ -14,6 +17,7 @@ export interface SearchResult {
   type: string;
   phone: string;
   hours: string;
+  photo_url?: string;
 }
 
 export interface BusinessDetails {
@@ -26,6 +30,7 @@ export interface BusinessDetails {
     height: number;
     html_attributions: string[];
   }>;
+  photo_urls?: string[];
   rating: number;
   reviews: Array<{
     text: string;
@@ -109,11 +114,14 @@ export interface StepProps {
   handleBack: () => void;
 }
 
+import { UtensilsCrossed, Stethoscope, Scale, Home, Car, Dumbbell, Store } from 'lucide-react';
+
 export const categories: Category[] = [
   {
     id: "restaurants",
     label: "Restaurants & Food",
     description: "Dining, cafes, bars, and service",
+    icon: UtensilsCrossed,
     questions: [
       "Is your restaurant vegetarian, non-vegetarian, or both? What cuisines do you specialize in?",
       "Do you offer specials like discounts, live music, big screen, outdoor seating, or happy hours?",
@@ -124,6 +132,7 @@ export const categories: Category[] = [
     id: "healthcare",
     label: "Healthcare & Medical",
     description: "Clinics, dental, urgent care",
+    icon: Stethoscope,
     questions: [
       "What type of practice (general, dental, specialty, urgent care) and primary services?",
       "Do you accept insurance, offer payment plans, and what are after-hours procedures?",
@@ -134,6 +143,7 @@ export const categories: Category[] = [
     id: "legal",
     label: "Legal & Law Firms",
     description: "Intake, scheduling, confidential",
+    icon: Scale,
     questions: [
       "What areas of law (injury, family, criminal, corporate)? Any emergency cases?",
       "Do you offer free consults, payment plans, or contingency fees?",
@@ -144,6 +154,7 @@ export const categories: Category[] = [
     id: "real_estate",
     label: "Real Estate",
     description: "Leads, showings, inquiries",
+    icon: Home,
     questions: [
       "Residential, commercial, or rentals? What areas do you serve?",
       "Services: buying, selling, property management, investments?",
@@ -154,6 +165,7 @@ export const categories: Category[] = [
     id: "automotive",
     label: "Automotive Services",
     description: "Repair shops and dealerships",
+    icon: Car,
     questions: [
       "What services (repairs, maintenance, inspections, sales)? Specialize in types/brands?",
       "Do you offer emergency services, towing, rentals, or warranty work?",
@@ -164,6 +176,7 @@ export const categories: Category[] = [
     id: "fitness",
     label: "Fitness & Wellness",
     description: "Gyms, yoga, personal training",
+    icon: Dumbbell,
     questions: [
       "What type (gym, yoga, PT, dance) and what classes/services?",
       "Membership packages, PT, groups, or programs (seniors/beginners)?",
@@ -174,6 +187,7 @@ export const categories: Category[] = [
     id: "others",
     label: "Other Business",
     description: "Retail, consulting, services",
+    icon: Store,
     questions: [
       "What type of business and primary products/services customers ask about?",
       "Most popular products/services and pricing ranges? Any packages or promotions?",

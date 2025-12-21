@@ -290,6 +290,26 @@
         animation: zoomIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       }
 
+      /* Sound Wave Animation */
+      @keyframes soundWave {
+        0%, 100% { height: 32px; }
+        50% { height: 48px; }
+      }
+      
+      .animate-soundWave {
+        animation: soundWave 0.8s ease-in-out infinite;
+      }
+
+      /* Shimmer Animation */
+      @keyframes shimmer {
+        0% { transform: translateX(-100%) rotate(45deg); }
+        100% { transform: translateX(200%) rotate(45deg); }
+      }
+      
+      .animate-shimmer {
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
       .animation-delay-200 { animation-delay: 0.2s; }
       .animation-delay-400 { animation-delay: 0.4s; }
       .animation-delay-600 { animation-delay: 0.6s; }

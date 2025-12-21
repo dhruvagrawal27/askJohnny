@@ -675,15 +675,15 @@ const SetupLoading = () => {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center max-w-lg">
           <div className="mb-4">
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
@@ -695,7 +695,7 @@ const SetupLoading = () => {
           <div className="space-y-3">
             <button
               onClick={handleRetry}
-              className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold transition-colors"
+              className="w-full px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-semibold transition-colors shadow-md shadow-brand-500/30"
             >
               Try Again
             </button>
@@ -712,11 +712,11 @@ const SetupLoading = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex items-center justify-center">
       <div className="text-center max-w-md">
         <div className="mb-8">
-          <div className="mx-auto w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-brand-500/20">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-brand-200 border-t-brand-600"></div>
           </div>
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
             Setting Up Your Account
@@ -732,12 +732,12 @@ const SetupLoading = () => {
             {steps.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                className={`h-2 rounded-full transition-all duration-500 ${
                   index + 1 < currentStep
-                    ? 'bg-emerald-600'
+                    ? 'w-8 bg-brand-600 shadow-sm shadow-brand-500/50'
                     : index + 1 === currentStep
-                    ? 'bg-emerald-400 animate-pulse'
-                    : 'bg-slate-200'
+                    ? 'w-12 bg-gradient-to-r from-brand-500 to-brand-600 animate-pulse shadow-md shadow-brand-500/50'
+                    : 'w-8 bg-slate-200'
                 }`}
               />
             ))}
@@ -748,18 +748,18 @@ const SetupLoading = () => {
         {/* Current step details */}
         {currentStep <= steps.length && (
           <div className="mb-6">
-            <div className="bg-white rounded-lg p-4 border border-slate-200">
-              <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Current Step</p>
-              <p className="text-sm text-slate-700">{steps[currentStep - 1]}</p>
+            <div className="bg-white rounded-xl p-5 border border-brand-100 shadow-lg shadow-brand-500/10">
+              <p className="text-xs text-brand-600 font-semibold uppercase tracking-wide mb-2">Current Step</p>
+              <p className="text-sm text-slate-800 font-medium">{steps[currentStep - 1]}</p>
             </div>
           </div>
         )}
 
         {/* Warning */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-sm text-yellow-800">
-            <span className="font-medium">Please don't close this window.</span><br />
-            This process usually takes 30-60 seconds.
+        <div className="bg-gradient-to-r from-purple-50 to-brand-50 border border-brand-200 rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-slate-700">
+            <span className="font-semibold text-brand-700">⏳ Please don't close this window.</span><br />
+            <span className="text-slate-600">This process usually takes 30-60 seconds.</span>
           </p>
         </div>
 

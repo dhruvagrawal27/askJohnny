@@ -527,7 +527,7 @@ export const DashboardVoices: React.FC = () => {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Voice Selection</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Voice Selection</h1>
         <p className="text-muted-foreground mt-1">
           Choose the perfect voice for your AI assistant from our curated collection of professional voices.
         </p>
@@ -575,12 +575,14 @@ export const DashboardVoices: React.FC = () => {
 
       {/* Current Voice Display */}
       {currentVoice && (
-        <Card className="bg-blue-50 border-blue-200 mb-4">
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Volume2 className="h-5 w-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                <Volume2 className="h-5 w-5 text-white" />
+              </div>
               <div>
-                <p className="font-medium text-blue-800">
+                <p className="font-semibold text-blue-900">
                   Current Voice: {currentVoice.provider === "vapi" 
                     ? vapiVoices.find(v => v.id === currentVoice.voiceId || v.name === currentVoice.voiceId)?.name || currentVoice.voiceId
                     : elevenLabsVoices.find(v => v.voice_id === currentVoice.voiceId)?.name || currentVoice.voiceId
@@ -597,13 +599,15 @@ export const DashboardVoices: React.FC = () => {
 
       {/* Voice Selection */}
       {selectedVoice && (
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-green-600" />
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                  <Check className="h-5 w-5 text-white" />
+                </div>
                 <div>
-                  <p className="font-medium text-green-800">
+                  <p className="font-semibold text-green-900">
                     Voice Selected: {selectedVoice.provider === "vapi" 
                       ? vapiVoices.find(v => v.id === selectedVoice.voiceId || v.name === selectedVoice.voiceId)?.name || selectedVoice.voiceId
                       : elevenLabsVoices.find(v => v.voice_id === selectedVoice.voiceId)?.name || selectedVoice.voiceId
@@ -617,7 +621,7 @@ export const DashboardVoices: React.FC = () => {
               <Button 
                 onClick={saveVoiceSelection}
                 disabled={isSaving}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
               >
                 {isSaving ? "Saving..." : "Save Voice"}
               </Button>
@@ -653,125 +657,123 @@ export const DashboardVoices: React.FC = () => {
           return (
             <Card 
               key={`${voice.provider}-${voiceId}`}
-              className={`transition-all duration-200 hover:shadow-lg cursor-pointer ${
-                isSelected ? "ring-2 ring-blue-500 bg-blue-50" : ""
+              className={`group transition-all duration-300 cursor-pointer relative overflow-hidden ${
+                isSelected 
+                  ? "border-2 border-transparent bg-gradient-to-br from-purple-50 via-white to-indigo-50 shadow-lg ring-2 ring-purple-400" 
+                  : "border border-gray-200 hover:border-transparent hover:shadow-xl hover:bg-gradient-to-br hover:from-purple-50/50 hover:via-white hover:to-indigo-50/50"
               }`}
               onClick={() => setSelectedVoice({ provider: voice.provider, voiceId })}
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold">
-                      {displayName.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        {displayName}
-                        {isCurrent && (
-                          <Badge variant="secondary" className="ml-2 text-xs">Current</Badge>
-                        )}
-                      </CardTitle>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">
-                          {voice.provider === "11labs" ? "11Labs" : "Vapi"}
+              {/* Gradient accent bar on top */}
+              <div className={`h-1 w-full bg-gradient-to-r ${
+                isSelected 
+                  ? "from-purple-500 via-indigo-500 to-purple-500" 
+                  : "from-transparent via-transparent to-transparent group-hover:from-purple-400 group-hover:via-indigo-400 group-hover:to-purple-400"
+              } transition-all duration-300`}></div>
+              
+              <CardContent className="p-5">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <h3 className="text-lg font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent group-hover:from-purple-900 group-hover:to-indigo-900 transition-all duration-300">{displayName}</h3>
+                      {isCurrent && (
+                        <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 text-xs px-2 py-0.5 shadow-sm">
+                          ✓ Active
                         </Badge>
-                        {isVapi ? (
-                          <Badge variant="outline" className="text-xs">
-                            {voice.gender} • {voice.age}
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-xs">
-                            {voice.labels.gender} • {voice.labels.age}
-                          </Badge>
-                        )}
-                      </div>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                      <Badge className={`text-xs font-medium ${
+                        voice.provider === "11labs" 
+                          ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-200" 
+                          : "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border border-purple-200"
+                      }`}>
+                        {voice.provider === "11labs" ? "11Labs" : "Vapi"}
+                      </Badge>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-600 font-medium whitespace-nowrap">
+                        {isVapi 
+                          ? `${voice.gender} ${voice.age}` 
+                          : `${voice.labels.gender} ${voice.labels.age}`}
+                      </span>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-indigo-600 font-medium whitespace-nowrap">{isVapi ? voice.accent : voice.labels.accent || "Standard"}</span>
                     </div>
                   </div>
                   
-                  {/* Play/Pause Button */}
-                  <div className="flex items-center gap-2">
-                    {!isVapi && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isPlaying) {
-                            stopAudio();
-                          } else {
-                            playAudio(voice.preview_url, voiceId);
-                          }
-                        }}
-                        className="w-10 h-10 p-0"
-                      >
-                        {isPlaying ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                    {isSelected && (
-                      <Check className="h-5 w-5 text-blue-600" />
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground mb-3">
-                  {voice.description}
-                </p>
-
-                {/* Voice Characteristics */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Globe className="h-4 w-4 text-blue-500" />
-                    <span className="font-medium">Accent:</span>
-                    <span>{isVapi ? voice.accent : voice.labels.accent || "Standard"}</span>
-                  </div>
-                  
-                  {isVapi ? (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {voice.characteristics.map((char, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
-                          {char}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {voice.labels.descriptive}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        {voice.labels.accent} accent
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        {voice.labels.use_case}
-                      </Badge>
-                    </div>
+                  {/* Play Button for 11Labs only */}
+                  {!isVapi && (
+                    <Button
+                      variant={isPlaying ? "default" : "outline"}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isPlaying) {
+                          stopAudio();
+                        } else {
+                          playAudio(voice.preview_url, voiceId);
+                        }
+                      }}
+                      className={`flex-shrink-0 transition-all duration-300 ${
+                        isPlaying 
+                          ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md" 
+                          : "border-gray-300 hover:border-purple-400 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-purple-700"
+                      }`}
+                    >
+                      {isPlaying ? (
+                        <>
+                          <Pause className="h-4 w-4 mr-1.5" />
+                          Stop
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-1.5" />
+                          Preview
+                        </>
+                      )}
+                    </Button>
                   )}
                 </div>
 
-                {isVapi && (
-                  <div className="mt-3 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <p className="text-xs text-yellow-800 flex items-center gap-1">
-                      <Volume2 className="h-3 w-3" />
-                      Preview not available for Vapi voices
-                    </p>
-                  </div>
-                )}
+                {/* Description */}
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">
+                  {voice.description}
+                </p>
+
+                {/* Tags - only show 2 most relevant */}
+                <div className="flex flex-wrap gap-1.5">
+                  {isVapi ? (
+                    voice.characteristics.slice(0, 2).map((char, idx) => (
+                      <Badge 
+                        key={idx} 
+                        className="text-xs font-normal bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 border border-purple-200 hover:from-purple-200 hover:to-indigo-200"
+                      >
+                        {char}
+                      </Badge>
+                    ))
+                  ) : (
+                    <>
+                      <Badge className="text-xs font-normal bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-200 hover:from-blue-200 hover:to-cyan-200">
+                        {voice.labels.descriptive}
+                      </Badge>
+                    </>
+                  )}
+                </div>
               </CardContent>
             </Card>
             );
           })
         )}
-      </div>      {filteredVoices.length === 0 && !isLoadingCurrentVoice && (
+      </div>
+      
+      {filteredVoices.length === 0 && !isLoadingCurrentVoice && (
         <Card>
           <CardContent className="p-8 text-center">
-            <Volume2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No voices found</h3>
+            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4">
+              <Volume2 className="h-8 w-8 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No voices found</h3>
             <p className="text-muted-foreground">
               Try adjusting your search terms or provider filters.
             </p>
@@ -790,14 +792,14 @@ export const DashboardVoices: React.FC = () => {
       )}
 
       {/* About Section */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Volume2 className="h-6 w-6 text-blue-600" />
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+              <Volume2 className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 Premium Voice Technology
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -806,11 +808,11 @@ export const DashboardVoices: React.FC = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-blue-500" />
+                  <Globe className="h-4 w-4 text-purple-500" />
                   <span>Multi-language support</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-green-500" />
+                  <User className="h-4 w-4 text-purple-500" />
                   <span>Natural conversation flow</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -818,7 +820,7 @@ export const DashboardVoices: React.FC = () => {
                   <span>High-quality audio</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-blue-500" />
+                  <Check className="h-4 w-4 text-purple-500" />
                   <span>Real-time processing</span>
                 </div>
               </div>

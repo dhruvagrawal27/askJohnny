@@ -490,7 +490,7 @@ export const DashboardOutbound: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#A26BFF] to-[#7A57FF] bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-gray-900">
                 Outbound Calls
               </h1>
               <Badge className="bg-purple-100 text-[#7A57FF] text-xs px-2 py-1">
@@ -562,8 +562,8 @@ export const DashboardOutbound: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="p-3 bg-blue-50 rounded-full">
-                      <BarChart3 className="h-6 w-6 text-blue-500" />
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <BarChart3 className="h-6 w-6 text-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -584,8 +584,8 @@ export const DashboardOutbound: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="p-3 bg-green-50 rounded-full">
-                      <Play className="h-6 w-6 text-green-500" />
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <Play className="h-6 w-6 text-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -606,8 +606,8 @@ export const DashboardOutbound: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="p-3 bg-purple-50 rounded-full">
-                      <Users className="h-6 w-6 text-purple-500" />
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <Users className="h-6 w-6 text-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -635,8 +635,8 @@ export const DashboardOutbound: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="p-3 bg-green-50 rounded-full">
-                      <Target className="h-6 w-6 text-green-500" />
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <Target className="h-6 w-6 text-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -645,15 +645,19 @@ export const DashboardOutbound: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-[#7A57FF]">
-                    <Clock className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <Clock className="h-4 w-4 text-white" />
+                    </div>
                     Campaign Status Breakdown
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between p-3 rounded-lg border">
                     <div className="flex items-center gap-3">
-                      <Calendar className="h-4 w-4 text-blue-500" />
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-white" />
+                      </div>
                       <span className="font-medium">Scheduled</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -667,7 +671,9 @@ export const DashboardOutbound: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg border">
                     <div className="flex items-center gap-3">
-                      <Play className="h-4 w-4 text-green-500" />
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                        <Play className="h-4 w-4 text-white" />
+                      </div>
                       <span className="font-medium">In Progress</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -681,7 +687,9 @@ export const DashboardOutbound: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg border">
                     <div className="flex items-center gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                        <CheckCircle className="h-4 w-4 text-white" />
+                      </div>
                       <span className="font-medium">Ended</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -695,7 +703,9 @@ export const DashboardOutbound: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg border">
                     <div className="flex items-center gap-3">
-                      <AlertCircle className="h-4 w-4 text-blue-500" />
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                        <AlertCircle className="h-4 w-4 text-white" />
+                      </div>
                       <span className="font-medium">Queued</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -711,8 +721,10 @@ export const DashboardOutbound: React.FC = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-[#7A57FF]">
-                    <BarChart3 className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <BarChart3 className="h-4 w-4 text-white" />
+                    </div>
                     Call Performance Metrics
                   </CardTitle>
                 </CardHeader>
@@ -791,10 +803,10 @@ export const DashboardOutbound: React.FC = () => {
                 </div>
               ) : campaigns.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <div className="p-4 bg-muted rounded-full mb-4">
-                    <PhoneOutgoing className="h-8 w-8 text-muted-foreground" />
+                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
+                    <PhoneOutgoing className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     No campaigns found
                   </h3>
                   <p className="text-muted-foreground mb-4">

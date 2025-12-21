@@ -21,6 +21,7 @@ import {
   Globe,
   Settings,
   Bot,
+  ChevronLeft,
 } from "lucide-react";
 import { UserButton } from "@clerk/clerk-react";
 import { Link, useLocation } from "react-router-dom";
@@ -44,18 +45,21 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-white">
-        {/* Professional Sidebar - Landing Page Style */}
-        <Sidebar className="border-r border-[#ECE8FF]/60">
-          {/* Logo Section */}
-          <div className="p-6 border-b border-[#ECE8FF]/60">
+        {/* Professional Sidebar */}
+        <Sidebar className="border-r border-gray-200 bg-white">
+          {/* Logo Section - Matches navbar height */}
+          <div className="h-[61px] px-4 border-b border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#A26BFF] to-[#7A57FF] flex items-center justify-center shadow-lg">
-                <Phone className="h-5 w-5 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-sm">
+                <Phone className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-xl text-brand-700 tracking-tight">
+              <span className="font-bold text-base text-gray-900 tracking-tight">
                 Ask Johnny
               </span>
             </div>
+            <SidebarTrigger className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+              <ChevronLeft className="h-4 w-4 text-gray-600" />
+            </SidebarTrigger>
           </div>
 
           <SidebarContent className="px-3 py-4">
@@ -69,13 +73,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                       <SidebarMenuItem key={item.url}>
                         <Link to={item.url} className="block">
                           <SidebarMenuButton
-                            className={`relative w-full justify-start h-11 px-4 rounded-xl font-semibold transition-all duration-200 ${
+                            className={`relative w-full justify-start h-10 px-3 rounded-lg font-medium transition-all duration-200 ${
                               active
-                                ? "bg-gradient-to-r from-[#A26BFF] to-[#7A57FF] text-white shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30"
-                                : "text-[#6A6F7A] hover:bg-gray-50 hover:text-[#0C0F1A]"
+                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm hover:from-purple-700 hover:to-indigo-700"
+                                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                             }`}
                           >
-                            <Icon className="h-5 w-5 mr-3" />
+                            <Icon className="h-4 w-4 mr-3" />
                             <span className="text-sm">{item.title}</span>
                           </SidebarMenuButton>
                         </Link>
@@ -87,11 +91,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
             </SidebarGroup>
 
             {/* User Section */}
-            <div className="mt-auto p-4 border-t border-[#ECE8FF]/60">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-[#ECE8FF]/40">
+            <div className="mt-auto p-3 border-t border-gray-200">
+              <div className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
                 <UserButton afterSignOutUrl="/" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#6A6F7A] font-semibold">Account</p>
+                  <p className="text-xs text-gray-600 font-medium">My Account</p>
                 </div>
               </div>
             </div>
@@ -102,11 +106,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
         <main className="flex-1 overflow-hidden" style={{
           background: 'radial-gradient(125% 125% at 50% 10%, #FFFFFF 35%, #E9D5FF 75%, #C4B5FD 100%)'
         }}>
-          <header className="border-b border-[#ECE8FF]/60 bg-white/80 backdrop-blur-md">
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
-                <h1 className="text-2xl font-bold text-[#0C0F1A]">
+          <header className="h-[61px] border-b border-gray-200 bg-white/90 backdrop-blur-md">
+            <div className="flex items-center justify-between px-6 h-full">
+              <div className="flex items-center gap-3">
+                <h1 className="text-lg font-bold text-gray-900">
                   {sidebarItems.find((i) => i.url === location.pathname)
                     ?.title || "Dashboard"}
                 </h1>
@@ -115,7 +118,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
             </div>
           </header>
 
-          <div className="h-[calc(100vh-73px)] overflow-y-auto">
+          <div className="h-[calc(100vh-61px)] overflow-y-auto">
             {children}
           </div>
         </main>

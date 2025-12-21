@@ -71,34 +71,28 @@ const newOnboarding: React.FC<OnboardingProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white flex flex-col lg:flex-row overflow-hidden font-sans h-screen w-screen">
+    <div className="fixed inset-0 z-[100] bg-white flex overflow-hidden font-sans h-screen">
       <Sidebar state={state} onClose={onClose} />
       
-      {/* Main Content Area (Right 70%) */}
-      <div className="flex-1 h-full relative bg-white overflow-hidden flex flex-col">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden h-full">
         {/* Mobile Header */}
-        <div className="lg:hidden p-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white/95 backdrop-blur z-20 shrink-0">
-          <span className="font-bold text-brand-700 text-sm">Step {state.step} of 7</span>
-          <button onClick={onClose} className="p-2 bg-gray-50 rounded-full text-gray-600">
-            <ArrowLeft size={20} />
+        <div className="lg:hidden px-4 py-3 border-b border-gray-200 bg-white flex justify-between items-center z-20 shrink-0">
+          <span className="font-bold text-brand-700 text-xs">Step {state.step} of 7</span>
+          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors">
+            <ArrowLeft size={18} />
           </button>
         </div>
 
-        {/* Content Wrapper */}
-        <div className="flex-1 overflow-hidden relative flex flex-col">
-          <div className="absolute inset-0 pointer-events-none z-0">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-b from-brand-50/50 to-transparent rounded-bl-full opacity-50"></div>
-          </div>
-          
-          <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
-            {state.step === 1 && <StepOne {...stepProps} />}
-            {state.step === 2 && <StepOneB {...stepProps} />}
-            {state.step === 3 && <StepOneC {...stepProps} />}
-            {state.step === 4 && <StepOneD {...stepProps} />}
-            {state.step === 5 && <StepTwo {...stepProps} />}
-            {state.step === 6 && <StepThree {...stepProps} />}
-            {state.step === 7 && <StepFour {...stepProps} />}
-          </div>
+        {/* Content Wrapper - No scrolling, fits in viewport */}
+        <div className="flex-1 overflow-hidden h-full">
+          {state.step === 1 && <StepOne {...stepProps} />}
+          {state.step === 2 && <StepOneB {...stepProps} />}
+          {state.step === 3 && <StepOneC {...stepProps} />}
+          {state.step === 4 && <StepOneD {...stepProps} />}
+          {state.step === 5 && <StepTwo {...stepProps} />}
+          {state.step === 6 && <StepThree {...stepProps} />}
+          {state.step === 7 && <StepFour {...stepProps} />}
         </div>
       </div>
     </div>

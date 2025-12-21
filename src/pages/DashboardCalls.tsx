@@ -330,14 +330,14 @@ export const DashboardCalls: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Call History</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold text-gray-900">Call History</h1>
+          <p className="text-gray-600">
             View and manage your recent calls
           </p>
         </div>
 
         {/* Header Actions */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
           {/* Hide: Mark all 0 calls as unread, Mark All Read, Mark All Unread */}
           {/* <span>Mark all 0 calls as unread</span> */}
           <div className="flex items-center gap-2 ml-4">
@@ -428,8 +428,8 @@ export const DashboardCalls: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="p-3 bg-red-50 rounded-full">
-                <PhoneCall className="h-6 w-6 text-red-500" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <PhoneCall className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
@@ -449,8 +449,8 @@ export const DashboardCalls: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <Clock className="h-6 w-6 text-orange-500" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
@@ -470,8 +470,8 @@ export const DashboardCalls: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Users className="h-6 w-6 text-purple-500" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Users className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
@@ -629,10 +629,10 @@ export const DashboardCalls: React.FC = () => {
                   <tr>
                     <td colSpan={4} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="p-4 bg-muted rounded-full mb-4">
-                          <Phone className="h-8 w-8 text-muted-foreground" />
+                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
+                          <Phone className="h-8 w-8 text-white animate-pulse" />
                         </div>
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
                           Loading call logs...
                         </h3>
                       </div>
@@ -642,8 +642,8 @@ export const DashboardCalls: React.FC = () => {
                   <tr>
                     <td colSpan={4} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="p-4 bg-muted rounded-full mb-4">
-                          <Phone className="h-8 w-8 text-muted-foreground" />
+                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
+                          <Phone className="h-8 w-8 text-white" />
                         </div>
                         <h3 className="text-xl font-semibold text-red-600 mb-2">
                           Error loading calls
@@ -656,10 +656,10 @@ export const DashboardCalls: React.FC = () => {
                   <tr>
                     <td colSpan={4} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="p-4 bg-muted rounded-full mb-4">
-                          <Phone className="h-8 w-8 text-muted-foreground" />
+                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
+                          <Phone className="h-8 w-8 text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
                           No call logs found
                         </h3>
                         <p className="text-muted-foreground">
